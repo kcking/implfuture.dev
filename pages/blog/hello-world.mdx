@@ -1,0 +1,20 @@
+import { MDXProvider } from "@mdx-js/react";
+import { Layout } from "../../components/bloglayout";
+
+export const meta = {
+  title: "Hello World ✨",
+  date: "Feb 15 2022",
+  subtitle: "Building a personal blog like it's 2022",
+};
+
+# {meta.title}
+
+> This is a work-in-progress post about how I built this site. It's built on next.js, typescript, react and mdx.
+
+```rust
+fn main() {
+    println!("Hello world!");
+}
+```
+
+export default ({ children }) => <Layout>{children}</Layout>;
