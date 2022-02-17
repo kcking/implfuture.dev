@@ -11,7 +11,7 @@ export default function Blog(props: Props) {
       {props.blogs.map((blog) => (
         <>
           <Link href={blog.path}>
-            <a>
+            <a className="text-inherit">
               <h1 className="font-display text-4xl">{blog.title}</h1>
               <div>{blog.subtitle}</div>
               <div className="text-xl">{blog.date}</div>
@@ -29,7 +29,6 @@ export const getStaticProps = async (): Promise<{ props: Props }> => {
     blogs
       .filter((blog) => blog.length > 0)
       .map(async (blog) => {
-        console.error(blog);
         const blogImport = await import("./blog/" + blog);
         blogImport.meta.title;
         return {
