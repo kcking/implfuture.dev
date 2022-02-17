@@ -4,7 +4,7 @@ import { Components } from "@mdx-js/react/lib";
 export const components: Components = {
   h1: ({ children }) => <h1 className="text-4xl py-4">{children}</h1>,
   pre: ({ children }) => (
-    <pre className="m-4 p-6 bg-gray-400 bg-opacity-10 rounded">{children}</pre>
+    <pre className="m-4 p-6 bg-gray-400/10 rounded">{children}</pre>
   ),
 };
 
