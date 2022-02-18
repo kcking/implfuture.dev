@@ -15,7 +15,7 @@ type Props = {
 
 export default function Blog(props: Props) {
   return (
-    <div>
+    <div className="px-2">
       {props.blogs
         .sort((a, b) => (a.meta.date < b.meta.date ? 1 : -1))
         .filter(
