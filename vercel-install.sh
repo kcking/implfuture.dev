@@ -8,6 +8,6 @@ wget -O wasm-pack.tar.gz "https://github.com/rustwasm/wasm-pack/releases/downloa
 tar xvf wasm-pack.tar.gz --wildcards --no-anchored 'wasm-pack' --strip-components=1
 rm wasm-pack.tar.gz
 chmod +x wasm-pack
-sudo mv wasm-pack /usr/bin
+mv wasm-pack /usr/bin
 ls 
 yarn install
