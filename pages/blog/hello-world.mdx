@@ -1,6 +1,8 @@
 import { MDXProvider } from "@mdx-js/react";
 import { Layout } from "../../components/bloglayout";
 
+import { rust_string } from "../../rust/pkg";
+
 export const meta = {
   title: "Hello World ✨",
   date: "Feb 15 2022",
@@ -15,7 +17,7 @@ export const meta = {
 
 What was I looking for in a blog? Three things. Something that made it easy to
 (1) draft blog posts in a familiar language (markdown), (2) put everything into
-version control (git), and, most importantly, (3) incorporate {<em title="This string came from rust -> wasm!" className="text-orange-600"><RustString></RustString></em>}
+version control (git), and, most importantly, (3) incorporate {<em title="This string came from rust -> wasm!" className="text-orange-600">{rust_string()}</em>}
 components for interactive demos. Yes, that crab string {"<-"} actually comes from rust compiled to WebAssembly\!
 
 This setup will help illustrate the concepts I'll be covering in future posts,
