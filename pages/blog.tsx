@@ -22,7 +22,7 @@ export default function Blog(props: Props) {
           (blog) => !blog.meta.draft || process.env.NODE_ENV == "development"
         )
         .map((blog) => (
-          <div key={blog.path}>
+          <div key={blog.path} className="py-4">
             <Link href={blog.path}>
               <a className="text-inherit">
                 <h1 className="font-display text-4xl">{blog.meta.title}</h1>
