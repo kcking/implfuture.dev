@@ -15,14 +15,9 @@ export default function Header() {
         <Link href="/projects" passHref>
           <button className="p-4 text-3xl">Projects</button>
         </Link>
-        <button
-          className="p-4 text-3xl"
-          onClick={() => {
-            window.open("mailto:hello@implfuture.dev");
-          }}
-        >
-          Contact
-        </button>
+        <Link href="https://twitter.com/4kevinking" passHref>
+          <button className="p-4 text-3xl">Contact</button>
+        </Link>
       </div>
     </div>
   );
