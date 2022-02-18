@@ -4,7 +4,6 @@ type ProjectProps = {
   name: string;
   description: ReactElement;
   image: string;
-  invertLight?: boolean;
 };
 
 function Project(props: ProjectProps) {
@@ -15,10 +14,8 @@ function Project(props: ProjectProps) {
       key={props.name}
     >
       <div
-        //    TODO: add drop shadow, add padding below image
         className={
-          "w-60 h-60 absolute group-hover:invisible group-focus:invisible " +
-          (props.invertLight ? "invert dark:invert-0 " : "")
+          "w-60 h-60 absolute group-hover:invisible group-focus:invisible"
         }
         style={{
           backgroundImage: `url('${props.image}')`,
@@ -49,7 +46,6 @@ const projects: Array<ProjectProps> = [
       </>
     ),
     image: "/bevy.svg",
-    invertLight: true,
   },
   {
     name: "Ovrlay",
