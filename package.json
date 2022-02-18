@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "wasm-pack build && next build",
+    "build": "cd rust && wasm-pack build && cd .. && next build",
     "start": "next start",
     "lint": "next lint"
   },
