@@ -15,7 +15,7 @@ module.exports = withMDX({
   reactStrictMode: true,
   webpack: function (config, options) {
     console.log(options.webpack.version);
-    config.experiments = { asyncWebAssembly: true };
+    config.experiments = { asyncWebAssembly: true, ...config.experiments };
     return config;
   },
 });
