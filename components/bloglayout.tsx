@@ -17,7 +17,7 @@ export const components: Components = {
     </a>
   ),
   pre: ({ children }) => (
-    <pre className="overflow-scroll m-4 p-6 bg-gray-300/5 rounded">
+    <pre className="overflow-auto m-4 p-6 bg-gray-300/5 rounded">
       {children}
     </pre>
   ),

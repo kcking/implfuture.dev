@@ -1,3 +1,3 @@
 # My personal site
 
-Built on next.js, typescript, react and mdx. [Deployed here](https://implfuture.dev).
+Built on next.js, typescript, react, mdx, and most importantly, rust + wasm! [Deployed here](https://implfuture.dev).

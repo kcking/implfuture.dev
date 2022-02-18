@@ -162,14 +162,134 @@ export const components: Components = {
 };
 ```
 
-_Yes my XSS-spidy-senses are tingling at the above, but hey we're in 2022 where as long as there is no `dangerouslySetInnerHTML` we're in the clear 😅_
+_Yes my [XSS](https://owasp.org/www-community/attacks/xss/)-spidey-senses are tingling at the above, but hey we're in 2022 so as long as there is no `dangerouslySetInnerHTML` we're in the clear 😅_
 
 # Rust
 
-## Initial Wasm
+And now for the part we've all been waiting for... let's add some Rust! The
+high-level idea is to create a rust library crate that is compiled to
+WebAssembly using the `wasm-pack` CLI. That WebAssembly can then be imported
+into either a `.tsx` component or directly used in a `.mdx` file.
+
+Our first step is to install
+[`wasm-pack`](https://github.com/rustwasm/wasm-pack). There is an
+[installer](https://github.com/rustwasm/wasm-pack), but I was able to compile
+from source on windows using `cargo install wasm-pack` (after installing `perl`
+and `openssl` with [`scoop`](https://scoop.sh/)).
+
+## Creating the Rust Crate
+
+`wasm-pack` makes the rest of the rust side of things pretty painless. Run
+`wasm-pack new rust` to generate a complete cargo project in the `rust` folder.
+There are just a couple of tweaks we should make to the generated project:
+
+- since we want this folder to be part of the parent repository, remove the `.git` folder in the generated crate: <span className="inline-block"> `rm -rf rust/.git`</span>
+- `rm` all of the CI stuff for now, like Travis and Appveyor
+- Change the `edition` to `2021` in `Cargo.toml`
+- Remove the `optional` field in the `wee_alloc` dependency in `Cargo.toml`
+- Remove the `#[cfg(..)]` in `lib.rs` over the `ALLOC` line. We always want to use `wee_alloc` so we can minimize our binary size.
+
+Great! Our wasm crate now exists. Run `wasm-pack` and make sure it builds
+successfully. The build output should be in the `pkg` folder of your rust crate.
+
+The default template calls `alert()` through javascript which will open a dialog
+window (useful for debugging, but so mean to our poor blog readers!). Instead,
+let's add a function to `lib.rs` to return a `String`.
+
+```rust
+//  lib.rs
+#[wasm_bindgen]
+pub fn rust_string() -> String {
+    "rust 🦀".into()
+}
+```
+
+> The `pub` and `#[wasm_bindgen]` will make this function callable from anything
+> that imports this wasm module.
+
+Note that we will have to run `wasm-pack build` every time we change any rust
+code. I recommend using `cargo-watch` or some other tool to automatically
+recompile the wasm whenever something changes. It's also a good idea to add
+`wasm-pack build` to the `build` script in your `package.json` file.
+
+## Calling from MDX
+
+Using our wasm module is now as simple as importing it into an MDX file:
+
+```tsx
+//  blog_post.mdx
+import { rust_string } from "../../rust/pkg";
+
+a rust string {rust_string()}
+```
+
+That's it! We just need a few changes to our Next.js config to support wasm,
+mainly a workaround for an issue with compiled wasm blobs being written to the
+wrong directory:
+
+```js
+//  next.config.js
+...
+/** @type {import('next').NextConfig} */
+module.exports = withMDX({
+  pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
+  reactStrictMode: true,
+  webpack: function (config, options) {
+    //  https://github.com/vercel/next.js/issues/29362#issuecomment-932767530
+    config.output.webassemblyModuleFilename =
+      options.isServer && !options.dev
+        ? "../static/wasm/[id].wasm"
+        : "static/wasm/[id].wasm";
+    config.optimization.moduleIds = "named";
+    config.experiments = { asyncWebAssembly: true, ...config.experiments };
+    return config;
+  },
+});
+```
+
+And with that, we're ready to deploy our blog to production! 🚢 it!
 
 ## Custom Vercel Build
 
-## Config Workaround
+Up until now, everything we've done is independent of where you choose to deploy
+your Next.js project. I personally chose to use [Vercel](https://vercel.com) as
+it's the easiest way I know to deploy anything Next.js. While Vercel usually requires
+zero configuration, to get rust + wasm working I had to make a few changes to
+the build process.
+
+Vercel recommends [installing
+rust](https://vercel.com/docs/concepts/deployments/build-step#collapse-button-8)
+using <span className="inline-block">`amazon-linux-extras install rust1`</span>.
+However, this installs an older version of rust that doesn't support the [2021
+edition](https://doc.rust-lang.org/edition-guide/rust-2021/index.html).
+
+Next, the simplest way to install `wasm-pack` would be to compile it with `cargo install`. However this takes over a minute on the Vercel build vm. Instead, I
+added a script to download the `wasm-pack` musl linux binary from GitHub.
+
+Both of these steps are captured in a bash script:
+
+```bash
+# vercel-install.sh
+
+#!/bin/bash
+set -x
+set -e
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
+export PATH="/vercel/.cargo/bin:$PATH"
+curl "https://github.com/rustwasm/wasm-pack/releases/download/v0.10.2/wasm-pack-v0.10.2-x86_64-unknown-linux-musl.tar.gz" -o wasm-pack.tar.gz -s -L
+tar xvf wasm-pack.tar.gz --wildcards --no-anchored 'wasm-pack' --strip-components=1
+rm wasm-pack.tar.gz
+chmod +x wasm-pack
+mv wasm-pack /usr/bin
+yarn install
+```
+
+To make Vercel run this bash script before your build, set the `INSTALL COMMAND`
+in your Vercel deployment settings to `bash ./vercel-install.sh`. Finally, set
+the `BUILD COMMAND` to `yarn build` so that `wasm-pack build` is run before
+`next build`.
+
+Thanks for reading! I hope this post helped smooth out a few of the rough edges
+with getting rust integrated into your own blog. Feel free to clone, fork, or pull request this site on [GitHub](https://github.com/kcking/implfuture.dev)!
 
 export default ({ children }) => <Layout>{children}</Layout>;
