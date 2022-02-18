@@ -287,8 +287,8 @@ yarn install
 To make Vercel run this bash script before your build, set the `INSTALL COMMAND`
 in your Vercel deployment settings to `bash ./vercel-install.sh`. Finally, set
 the `BUILD COMMAND` to `yarn build` so that `wasm-pack build` is run before
-`next build`. My whole build currently takes just over 2 minutes, but 90% of
-that is installing these build depencencies. I hope Vercel considers adding rust + wasm-pack to a pre-baked build image!
+`next build`. I hope Vercel considers adding rust + wasm-pack to a pre-baked
+build image to make this whole process much easier!
 
 Thanks for reading! I hope this post helped smooth out a few of the rough edges
 with getting rust integrated into your own blog. Feel free to clone, fork, or pull request this site on [GitHub](https://github.com/kcking/implfuture.dev)!
