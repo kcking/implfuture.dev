@@ -22,7 +22,7 @@ export const components: Components = {
     </pre>
   ),
   blockquote: ({ children }) => (
-    <blockquote className="text-black/70 border-l-8 px-2 my-2 italic">
+    <blockquote className="text-black/70 dark:text-white/50 border-l-8 px-2 my-2 italic">
       {children}
     </blockquote>
   ),

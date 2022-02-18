@@ -48,7 +48,7 @@ yarn create next-app --typescript
 Next I recommend setting up [TailwindCSS](https://tailwindcss.com/docs/guides/nextjs). I have personally found it to be a joy
 to work with, particularly when tweaking styling constantly while things are in
 flux. Make sure you add `*.mdx` to the `pages` section of `tailwind.config.js`
-so that classes that are only use in MDX aren't thrown away in a production
+so that classes that are only used in MDX aren't thrown away in a production
 build.
 
 And... that's pretty much it! Most of you have probably used Next.js before but
@@ -67,7 +67,7 @@ The main components I needed were
 - embeddable interactive react components
 - an index page that lists each of the existing posts
 
-With the following config changes, Next.js will compile a `.mdx` file as an independent page:
+With the following config changes, Next.js will compile any `.mdx` file as an independent page:
 
 ```js
 //  next.config.js
@@ -207,7 +207,7 @@ pub fn rust_string() -> String {
 }
 ```
 
-> The `pub` and `#[wasm_bindgen]` will make this function callable from anything
+> Adding `pub` and `#[wasm_bindgen]` will make this function callable from anything
 > that imports this wasm module.
 
 Note that we will have to run `wasm-pack build` every time we change any rust
@@ -264,7 +264,8 @@ Vercel recommends [installing
 rust](https://vercel.com/docs/concepts/deployments/build-step#collapse-button-8)
 using <span className="inline-block">`amazon-linux-extras install rust1`</span>.
 However, this installs an older version of rust that doesn't support the [2021
-edition](https://doc.rust-lang.org/edition-guide/rust-2021/index.html).
+edition](https://doc.rust-lang.org/edition-guide/rust-2021/index.html). I
+installed rust using [`rustup`](https://rustup.rs) instead.
 
 Next, the simplest way to install `wasm-pack` would be to compile it with `cargo install`. However this takes over a minute on the Vercel build vm. Instead, I
 added a script to download the `wasm-pack` musl linux binary from GitHub.
@@ -291,9 +292,10 @@ To make Vercel run this bash script before your build, set the `INSTALL COMMAND`
 in your Vercel deployment settings to `bash ./vercel-install.sh`. Finally, set
 the `BUILD COMMAND` to `yarn build` so that `wasm-pack build` is run before
 `next build`. I hope Vercel considers adding rust + wasm-pack to a pre-baked
-build image to make this whole process much easier!
+build image to make this whole process a bit easier!
 
 Thanks for reading! I hope this post helped smooth out a few of the rough edges
-with getting rust integrated into your own blog. Feel free to clone, fork, or pull request this site on [GitHub](https://github.com/kcking/implfuture.dev)!
+with getting rust integrated into your own blog. Feel free to clone, fork, or
+pull request this site on [GitHub](https://github.com/kcking/implfuture.dev)!
 
 export default ({ children }) => <Layout>{children}</Layout>;
