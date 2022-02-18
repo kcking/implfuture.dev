@@ -17,7 +17,9 @@ export const components: Components = {
     </a>
   ),
   pre: ({ children }) => (
-    <pre className="m-4 p-6 bg-gray-300/5 rounded ">{children}</pre>
+    <pre className="overflow-scroll m-4 p-6 bg-gray-300/5 rounded">
+      {children}
+    </pre>
   ),
   blockquote: ({ children }) => (
     <blockquote className="text-black/70 border-l-8 px-2 my-2 italic">
