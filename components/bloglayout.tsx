@@ -1,6 +1,8 @@
 import { MDXProvider } from "@mdx-js/react";
 import { Components } from "@mdx-js/react/lib";
 
+import RustString from "./rust";
+
 export const components: Components = {
   h1: ({ children }) => <h1 className="text-4xl py-4">{children}</h1>,
   pre: ({ children }) => (
@@ -12,6 +14,7 @@ export const components: Components = {
     </blockquote>
   ),
   p: ({ children }) => <p className="py-2 text-lg">{children}</p>,
+  RustString,
 };
 
 //@ts-ignore
