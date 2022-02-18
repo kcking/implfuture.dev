@@ -49,7 +49,6 @@ export const getStaticProps = async (): Promise<{ props: Props }> => {
       .filter((blog) => blog.length > 0)
       .map(async (blog) => {
         const blogImport = await import("./blog/" + blog);
-        blogImport.meta.title;
         return {
           path: "blog/" + blog.replace(/\.mdx$/, ""),
           meta: blogImport.meta,

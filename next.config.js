@@ -23,7 +23,4 @@ module.exports = withMDX({
     config.experiments = { asyncWebAssembly: true, ...config.experiments };
     return config;
   },
-  publicRuntimeConfig: {
-    IS_LOCAL_DEV: process.argv.includes("dev"),
-  },
 });

@@ -25,6 +25,10 @@ such as an interactive [bevy](https://bevyengine.org) physics sim. I'll walk
 through some of the highlights of getting this setup so you too can have a rusty
 blog!
 
+This post details some bits and pieces of how I got this setup working, but for the full version just head over to the [GitHub repo](https://github.com/kcking/implfuture.dev)!
+
+If you've done your fair share of Next.js / MDX, you might want to just [skip to the rust part](#Rust) of the post right now :)
+
 # Next.js + React + Typescript = 💖
 
 While I'm excited about some of the [efforts](https://github.com/yewstack/yew)
@@ -32,15 +36,134 @@ going into [rust frontend](https://github.com/DioxusLabs/dioxus/) dev, I don't
 think anything beats the productivity of React + Typescript just yet. Don't
 worry, we'll get to the rust later!
 
-The first step is to start with a Nextjs Typescript project.
+The first step is to start with a Next.js Typescript project.
 
 ```bash
 yarn create next-app --typescript
 ```
 
+Next I recommend setting up [TailwindCSS](https://tailwindcss.com/docs/guides/nextjs). I have personally found it to be a joy
+to work with, particularly when tweaking styling constantly while things are in
+flux. Make sure you add `*.mdx` to the `pages` section of `tailwind.config.js`
+so that classes that are only use in MDX aren't thrown away in a production
+build.
+
+And... that's pretty much it! Most of you have probably used Next.js before but
+for those that are new, just run `yarn dev` and go to [http://localhost:3000](http://localhost:3000) to see
+a live preview of your site.
+
 # MDX
 
-# rust
+Speed of writing blog posts is very important to me. I also knew I wanted to
+keep everything in source control and use a familiar syntax like Markdown. This
+led me to pick MDX for writing actual blog posts.
+
+The main components I needed were
+
+- code blocks with syntax highlighting
+- embeddable interactive react components
+- an index page that lists each of the existing posts
+
+With the following config changes, Next.js will compile a `.mdx` file as an independent page:
+
+```js
+//  next.config.js
+const rehypePrism = require("@mapbox/rehype-prism");
+const withMDX = require("@next/mdx")({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [],
+    rehypePlugins: [rehypePrism],
+    providerImportSource: "@mdx-js/react",
+  },
+});
+module.exports = withMDX({
+  pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
+  reactStrictMode: true,
+};
+```
+
+I also added in `rehype-prism` for code syntax highlighting.
+
+## Blog Index
+
+I settled on a
+[`blog.tsx`](https://github.com/kcking/implfuture.dev/blob/main/pages/blog.tsx)
+page that uses `getStaticProps` at build time to iterate through all of the
+`.mdx` files in the `blog` folder. Each post `export`s an object called `meta`
+that is shaped like
+
+```typescript
+type Meta = {
+  date: string;
+  title: string;
+  subtitle: string;
+  draft?: boolean;
+};
+```
+
+The `import(..)` statement in `blog.tsx` compiles the mdx file into a javscript
+module that exposes this `meta` object. We can then sort the posts by descending
+date and format them into clickable rows just like we would for any other list
+data rendered in React.
+
+```tsx
+return (
+  <div>
+    {props.blogs
+      .sort((a, b) => (a.meta.date < b.meta.date ? 1 : -1))
+      .filter(
+        (blog) => !blog.meta.draft || process.env.NODE_ENV == "development"
+      )
+      .map((blog) => (
+        <div key={blog.path}>... some bloggy dom elements ...</div>
+      ))}
+  </div>
+);
+```
+
+This structure made it really simple to add the `draft` meta field to hide blog
+posts that aren't ready for public consumption but that I want to see in my
+local dev environment. _Yes I know they are visible in the public repo, think of it as learning in public 😁_
+
+## Styling
+
+MDX by default leaves all of the markdown elements unstyled. However, each type
+of markdown element is rendered as the analagous HTML element. For example, `#`
+maps to `h1`, `##` to `h2`, and `- ` to `li`. One way to style these elements is
+by writing css for each of the corresponding dom elements. However, I am very
+bought-in to using Tailwind. I also needed to set more than just styles, for
+example prepending a `-` before each list item.
+
+In addition to css, MDX lets you specify a React component for each dom element
+rendered from the markdown. These dom element-to-component mappings are passed
+into an `MDXProvider`, concentrating all of the blog styling and functionality
+into the
+[`bloglayout.tsx`](https://github.com/kcking/implfuture.dev/blob/main/components/bloglayout.tsx)
+file.
+
+This let me keep using Tailwind classes (yay!). It was also super easy to
+implement deep-links to `h1` and `h2` elements by
+
+- wrapping the header in a link with an `href` set to the header text
+- setting the `id` of the header to that same text
+
+```tsx
+export const components: Components = {
+  h1: ({ children }) => (
+    <a href={`#${children?.toString()}`} className="text-inherit">
+      <h1 className="text-4xl py-4" id={children?.toString()}>
+        {children}
+      </h1>
+    </a>
+  ),
+  ...
+};
+```
+
+_Yes my XSS-spidy-senses are tingling at the above, but hey we're in 2022 where as long as there is no `dangerouslySetInnerHTML` we're in the clear 😅_
+
+# Rust
 
 ## Initial Wasm
 
