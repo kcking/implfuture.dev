@@ -36,7 +36,7 @@ export function Layout({ children }) {
   return (
     <>
       <MDXProvider components={components as any}>
-        <div className="max-w-4xl w-full">{children}</div>
+        <div className="max-w-4xl w-full p-2">{children}</div>
       </MDXProvider>
     </>
   );
