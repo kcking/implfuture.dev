@@ -2,23 +2,42 @@ import { readdir } from "fs/promises";
 import Link from "next/link";
 
 type Props = {
-  blogs: Array<{ title: string; subtitle: string; path: string; date: string }>;
+  blogs: Array<{
+    path: string;
+    meta: {
+      date: string;
+      draft?: boolean;
+      title: string;
+      subtitle: string;
+    };
+  }>;
 };
 
 export default function Blog(props: Props) {
   return (
     <div>
-      {props.blogs.map((blog) => (
-        <>
-          <Link href={blog.path}>
-            <a className="text-inherit">
-              <h1 className="font-display text-4xl">{blog.title}</h1>
-              <div>{blog.subtitle}</div>
-              <div className="text-xl">{blog.date}</div>
-            </a>
-          </Link>
-        </>
-      ))}
+      {props.blogs
+        .sort((a, b) => (a.meta.date < b.meta.date ? 1 : -1))
+        .filter(
+          (blog) => !blog.meta.draft || process.env.NODE_ENV == "development"
+        )
+        .map((blog) => (
+          <div key={blog.path}>
+            <Link href={blog.path}>
+              <a className="text-inherit">
+                <h1 className="font-display text-4xl">{blog.meta.title}</h1>
+                <div>{blog.meta.subtitle}</div>
+                <div className="text-xl">
+                  {new Date(blog.meta.date).toLocaleString("default", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </div>
+              </a>
+            </Link>
+          </div>
+        ))}
     </div>
   );
 }
@@ -32,10 +51,8 @@ export const getStaticProps = async (): Promise<{ props: Props }> => {
         const blogImport = await import("./blog/" + blog);
         blogImport.meta.title;
         return {
-          title: blogImport.meta.title,
           path: "blog/" + blog.replace(/\.mdx$/, ""),
-          date: blogImport.meta.date,
-          subtitle: blogImport.meta.subtitle,
+          meta: blogImport.meta,
         };
       })
   );
