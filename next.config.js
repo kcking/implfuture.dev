@@ -13,4 +13,9 @@ const withMDX = require("@next/mdx")({
 module.exports = withMDX({
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
   reactStrictMode: true,
+  webpack: function (config, options) {
+    console.log(options.webpack.version);
+    config.experiments = { asyncWebAssembly: true };
+    return config;
+  },
 });

@@ -1,20 +1,43 @@
 import { MDXProvider } from "@mdx-js/react";
 import { Layout } from "../../components/bloglayout";
 
+import { rust_string } from "../../rust/pkg";
+
 export const meta = {
   title: "Hello World ✨",
   date: "Feb 15 2022",
-  subtitle: "Building a personal blog like it's 2022",
+  subtitle: "Building a blog like it's 2022",
 };
 
 # {meta.title}
 
-> This is a work-in-progress post about how I built this site. It's built on next.js, typescript, react and mdx. You can check out the source code on [GitHub](https://github.com/kcking/implfuture.dev).
+> This is a work-in-progress post about how I built this site. It's built on
+> next.js, typescript, react and mdx. You can check out the source code on
+> [GitHub](https://github.com/kcking/implfuture.dev).
 
-```rust
-fn main() {
-    println!("Hello world!");
-}
+What was I looking for in a blog? Three things. Something that made it easy to
+(1) draft blog posts in a familiar language (markdown), (2) put everything into
+version control (git), and, most importantly, (3) incorporate {<em title="This string came from rust -> wasm!" className="text-orange-600">{rust_string()}</em>}
+components for interactive demos. Yes, that crab string {"<-"} actually comes from rust compiled to WebAssembly\!
+
+This setup will help illustrate the concepts I'll be covering in future posts,
+such as an interactive [bevy](https://bevyengine.org) physics sim. I'll walk
+through some of the highlights of getting this setup so you too can have a rusty
+blog!
+
+# Next.js + React + Typescript = 💖
+
+While I'm excited about some of the [efforts](https://github.com/yewstack/yew)
+going into [rust frontend](https://github.com/DioxusLabs/dioxus/) dev, I don't
+think anything beats the productivity of React + Typescript just yet. Don't
+worry, we'll get to the rust later!
+
+The first step is to start with a Nextjs Typescript project.
+
+```bash
+yarn create next-app --typescript
 ```
+
+
 
 export default ({ children }) => <Layout>{children}</Layout>;

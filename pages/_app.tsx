@@ -3,7 +3,7 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import Header from "../components/header";
 import styles from "../styles/Home.module.css";
-import "../styles/prism-gruvbox-light.css";
+import "../styles/prism-vs.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
