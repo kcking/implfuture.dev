@@ -11,3 +11,8 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 pub fn rust_string() -> String {
     "rust 🦀".into()
 }
+
+#[wasm_bindgen]
+pub fn add_one(i: i32) -> i32 {
+    i + 1
+}

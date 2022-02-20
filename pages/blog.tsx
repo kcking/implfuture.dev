@@ -1,15 +1,17 @@
 import { readdir } from "fs/promises";
 import Link from "next/link";
 
+export type BlogMeta = {
+  date: string;
+  draft?: boolean;
+  title: string;
+  subtitle: string;
+};
+
 type Props = {
   blogs: Array<{
     path: string;
-    meta: {
-      date: string;
-      draft?: boolean;
-      title: string;
-      subtitle: string;
-    };
+    meta: BlogMeta;
   }>;
 };
 

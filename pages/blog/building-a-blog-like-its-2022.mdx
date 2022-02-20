@@ -2,6 +2,7 @@ import { MDXProvider } from "@mdx-js/react";
 import { Layout } from "../../components/bloglayout";
 
 import { rust_string } from "../../rust/pkg";
+import { Counter } from "../../components/rust";
 
 export const meta = {
   title: "Building a Blog like it's 2022 ✨",
@@ -22,6 +23,8 @@ What was I looking for in a blog? Three things. It should be easy to:
   components for interactive demos
 
 Yes, that orange crab string actually comes from rust compiled to WebAssembly\!
+As another example, here's a {<Counter />} backed by Rust that increments every
+time you click it.
 
 This setup will help illustrate the concepts I'll be covering in future posts,
 such as an interactive [bevy](https://bevyengine.org) physics sim. I'll walk
