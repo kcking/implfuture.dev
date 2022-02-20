@@ -1,0 +1,18 @@
+import { MDXProvider } from "@mdx-js/react";
+import { Layout } from "../../components/bloglayout";
+export default ({ children }) => <Layout>{children}</Layout>;
+
+import { BevyExample } from "../../components/bevy";
+
+export const meta = {
+  title: "Intro to Bevy",
+  date: "Feb 19 2022",
+  draft: true,
+  subtitle: "yea",
+};
+
+# {meta.title}
+
+> {meta.subtitle}
+
+{<BevyExample/>}
