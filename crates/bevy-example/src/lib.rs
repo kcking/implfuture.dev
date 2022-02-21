@@ -2,14 +2,14 @@ mod utils;
 
 use wasm_bindgen::prelude::*;
 
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+// #[global_allocator]
+// static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
 pub fn greet() {}
 
 //  TODO: send reasonable canvas size to rust
-//  TODO: debug memory leak (happens at least on windows/FF)
+//  TODO: debug memory leak (happens at least on windows/FF) -- switching off of wee_alloc may have fixed this?
 //  TODO: sometimes hit `unreachable error` after window is open for a while, i
 //  think we need to have actual singleton on react side
 use bevy::prelude::*;
