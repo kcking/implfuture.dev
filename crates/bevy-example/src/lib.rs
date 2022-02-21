@@ -8,7 +8,8 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[wasm_bindgen]
 pub fn greet() {}
 
-//  TODO: send canvas size to rust
+//  TODO: send reasonable canvas size to rust
+//  TODO: debug memory leak (happens at least on windows/FF)
 //  TODO: sometimes hit `unreachable error` after window is open for a while, i
 //  think we need to have actual singleton on react side
 use bevy::prelude::*;
