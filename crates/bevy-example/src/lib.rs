@@ -8,9 +8,8 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[wasm_bindgen]
 pub fn greet() {}
 
-//  IDEA:
-//      1. expose method to run single frame of app
-//      2. scope bevy to existing canvas so it doesn't take over the whole page
+//  TODO: send canvas size to rust
+//  TODO: sometimes hit `unreachable error` after window is open for a while
 use bevy::prelude::*;
 #[wasm_bindgen]
 pub fn run() {
