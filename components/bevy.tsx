@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { run } from "../crates/bevy-example/pkg";
 
-export const BevyExample = () => {
+const bevyGlobal = {bevy: null};
+
+export const BevyExample = (props: {width: number; height: number}) => {
   useEffect(() => {
     try {
-      run();
+      run(props.width, props.height);
     } catch (e) {
       console.error(e);
     }

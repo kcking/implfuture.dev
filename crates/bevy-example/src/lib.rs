@@ -13,10 +13,12 @@ pub fn greet() {}
 //  think we need to have actual singleton on react side
 use bevy::prelude::*;
 #[wasm_bindgen]
-pub fn run() {
+pub fn run(width: f32, height: f32) {
     App::new()
         .insert_resource(WindowDescriptor {
             canvas: Some("#bevy-canvas".into()),
+            width,
+            height,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)

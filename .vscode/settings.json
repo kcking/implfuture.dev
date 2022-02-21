@@ -1,0 +1,6 @@
+{
+     "rust-analyzer.linkedProjects": [
+        "crates/bevy-example/Cargo.toml",
+        "rust/Cargo.toml",
+    ]
+}
