@@ -2,7 +2,7 @@ import { MDXProvider } from "@mdx-js/react";
 import { Layout } from "../../components/bloglayout";
 export default ({ children }) => <Layout>{children}</Layout>;
 
-import { BevyExample } from "../../components/bevy";
+import { BevyExample } from "../../components/bevy_dynamic";
 
 export const meta = {
   title: "Intro to Bevy",
@@ -14,5 +14,7 @@ export const meta = {
 # {meta.title}
 
 > {meta.subtitle}
+
+<canvas id="bevy-canvas" className="w-full max-w-1/2 sm:w-1/4"></canvas>
 
 {<BevyExample/>}
