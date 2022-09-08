@@ -18,13 +18,13 @@ rust_binary(
     deps = all_crate_deps(
         normal = True,
     ) + [
-        ":gaia",
+        ":implfuture",
         "@rules_rust//wasm_bindgen/3rdparty:wasm_bindgen",
     ],
 )
 
 rust_library(
-    name = "gaia",
+    name = "implfuture",
     srcs = glob(
         include = [
             "src/**/*.rs",

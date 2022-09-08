@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-gaia = { path = ".." }
+implfuture = { path = ".." }
 
 axum = "0.5"
 clap = { version = "3.1.7", features = ["derive"] }

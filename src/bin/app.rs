@@ -1,4 +1,4 @@
 fn main() {
     println!("hi!");
-    yew::Renderer::<gaia::App>::new().hydrate();
+    yew::Renderer::<implfuture::App>::new().hydrate();
 }

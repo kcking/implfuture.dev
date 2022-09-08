@@ -12,7 +12,7 @@ use axum::Extension;
 use axum::{routing::get, Router};
 use futures::future::BoxFuture;
 use futures::ready;
-use gaia::ServerAppProps;
+use implfuture::ServerAppProps;
 use once_cell::sync::Lazy;
 use tokio_util::task::LocalPoolHandle;
 use tower::Service;
@@ -59,7 +59,7 @@ async fn index(
                 queries,
             };
             let mut out = String::new();
-            yew::ServerRenderer::<gaia::ServerApp>::with_props(props)
+            yew::ServerRenderer::<implfuture::ServerApp>::with_props(props)
                 .render_to_string(&mut out)
                 .await;
             out
@@ -86,7 +86,7 @@ async fn main() -> Result<()> {
         dbg!(e);
         StatusCode::BAD_REQUEST
     });
-    let route_service = RoutableService::<gaia::Route, _, _>::new(
+    let route_service = RoutableService::<implfuture::Route, _, _>::new(
         get(index),
         route(*APP_JS_PATH, app_wasm_serve.clone())
             .route(*APP_WASM_PATH, app_wasm_serve)

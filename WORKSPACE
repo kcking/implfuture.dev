@@ -102,7 +102,7 @@ load("@emsdk//:emscripten_deps.bzl", emsdk_emscripten_deps = "emscripten_deps")
 emsdk_emscripten_deps(emscripten_version = "3.1.19")
 
 # zigcc
-BAZEL_ZIG_CC_VERSION = "v0.9.1"
+# BAZEL_ZIG_CC_VERSION = "v0.9.1"
 
 # http_archive(
 #     name = "bazel-zig-cc",

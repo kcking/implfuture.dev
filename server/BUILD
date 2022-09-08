@@ -21,7 +21,7 @@ rust_binary(
     ),
     deps = all_crate_deps(
         normal = True,
-    ) + ["//:gaia"],
+    ) + ["//:implfuture"],
 )
 
 rust_binary(
@@ -45,7 +45,7 @@ rust_binary(
     },
     deps = all_crate_deps(
         normal = True,
-    ) + ["//:gaia"],
+    ) + ["//:implfuture"],
 )
 
 platform(
