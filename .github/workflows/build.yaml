@@ -1,0 +1,30 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+      fail-fast: false
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: customize windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          echo "startup --output_user_root=C:/" >> $HOME/.bazelrc
+          echo "startup --windows_enable_symlinks" >> $HOME/.bazelrc
+          echo "build --enable_runfiles" >> $HOME/.bazelrc
+      - name: build
+        run: bazel build //server
+      - name: build opt
+        run: bazel build //server:opt
+      - name: build arm64 image
+        # docker golang library not implemented on windows
+        if: matrix.os != 'windows-latest'
+        run: bazel build //server:image-arm64

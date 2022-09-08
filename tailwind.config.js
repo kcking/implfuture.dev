@@ -1,13 +1,12 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ["src/**/*.rs"],
   theme: {
-    extend: {},
-    fontFamily: {
-      display: ["Major Mono Display", "sans-serif"],
-      body: ["Raleway", "sans-serif"],
+    extend: {
+      fontFamily: {
+        display: ["Major Mono Display", "sans-serif"],
+        body: ["Raleway", "sans-serif"],
+      },
     },
   },
   plugins: [],

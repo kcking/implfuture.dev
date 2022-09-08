@@ -1,0 +1,30 @@
+[package]
+name = "gaia"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[workspace]
+members = [".", "server"]
+
+[[bin]]
+name = "app"
+
+[dependencies]
+wasm-bindgen = "=0.2.82"
+log = "0.4"
+stylist = { version = "0.10.1", features = ["yew"] }
+yew = { version = "0.19", features = ["hydration"] }
+yew-router = { version = "0.16.0" }
+time = { version = "0.3.12", features = ["macros", "formatting"] }
+lazy_static = "1.4.0"
+web-sys = "0.3.58"
+
+[patch.'crates-io']
+# yew = { path = "../yew/packages/yew" }
+# yew-router = { path = "../yew/packages/yew-router" }
+yew = { git = "https://github.com/kcking/yew", rev = "66939e79a1f998c00c93a90fcad2402eb40ecf37" }
+yew-router = { git = "https://github.com/kcking/yew", rev = "66939e79a1f998c00c93a90fcad2402eb40ecf37" }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
