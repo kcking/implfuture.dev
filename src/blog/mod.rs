@@ -2,7 +2,6 @@ mod post1;
 mod post2;
 mod syntaxhighlight;
 
-use log::info;
 use time::macros::date;
 use yew::{
     function_component, html, include_mdx, mdx, mdx_style, use_state, Children, Html, Properties,

@@ -1,7 +1,5 @@
-use std::sync::Arc;
-
-use stylist::{css, style, YieldStyle};
-use yew::{prelude::*, virtual_dom::VNode};
+use stylist::css;
+use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
 struct ProjectProps {

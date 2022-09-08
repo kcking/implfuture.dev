@@ -1,8 +1,5 @@
 use web_sys::{console, Element};
-use yew::{
-    prelude::*,
-    virtual_dom::{VNode, VTag},
-};
+use yew::{prelude::*, virtual_dom::VNode};
 
 #[function_component]
 pub fn HighlightCode(c: &super::ChildProps) -> Html {
@@ -40,6 +37,7 @@ pub fn HighlightCode(c: &super::ChildProps) -> Html {
     }
 }
 
+#[allow(non_upper_case_globals)]
 mod prism {
     use wasm_bindgen::prelude::*;
 

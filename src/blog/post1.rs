@@ -2,7 +2,7 @@ use super::*;
 
 super::blog_style!();
 
-pub fn post(md: &Metadata) -> Html {
+pub fn post(_md: &Metadata) -> Html {
     //  TODO: figure out how to embed dynamic content into mdx.
     //  could do this by parsing {} delimiters in text commonmark nodes
     mdx! {r#"

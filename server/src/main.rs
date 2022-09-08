@@ -3,10 +3,9 @@ use std::convert::Infallible;
 use std::marker::PhantomData;
 
 use anyhow::Result;
-use axum::body::{Body, BoxBody, Bytes};
+use axum::body::{Body, BoxBody};
 use axum::extract::Query;
-use axum::http::header::HeaderName;
-use axum::http::{HeaderMap, HeaderValue, Request, Response, StatusCode};
+use axum::http::{Request, Response, StatusCode};
 use axum::response::{Html, IntoResponse};
 use axum::routing::{get_service, MethodRouter};
 use axum::Extension;
