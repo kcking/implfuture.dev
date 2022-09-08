@@ -19,10 +19,6 @@ def _zig_toolchains_impl(repository_ctx):
     arch = repository_ctx.os.arch
     toolchains = [tc for tc in TOOLCHAIN_TO_OS if not (os.find(getattr(TOOLCHAIN_TO_OS[tc], "os")) != -1 and getattr(TOOLCHAIN_TO_OS[tc], "arch") == arch)]
 
-    print(os)
-    print(arch)
-    print(toolchains)
-
     repository_ctx.file("toolchains.bzl", """
 def register_toolchains():
     native.register_toolchains("{toolchains}")
