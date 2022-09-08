@@ -118,6 +118,7 @@ git_repository(
     name = "bazel-zig-cc",
     commit = "2f0ae4affa5ddc64a4fa701e2b6d3261e5058353",
     remote = "https://git.sr.ht/~motiejus/bazel-zig-cc",
+    shallow_since = "1662114099 +0300",
 )
 
 load("@bazel-zig-cc//toolchain:defs.bzl", zig_toolchains = "toolchains")
