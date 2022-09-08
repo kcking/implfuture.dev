@@ -115,8 +115,10 @@ fn switch(route: Route) -> Html {
                         </>
                     },
                     Route::BlogIndex => html! {
-                        <div class="w-full font-body flex justify-evenly px-2 flex-wrap">
-                            {blog::blog_index()}
+                        <div class="w-full font-body flex px-2 flex-col items-center place-content-around">
+                            <div class="flex flex-col">
+                                {blog::blog_index()}
+                            </div>
                         </div>
                     },
                     Route::BlogPost{slug} => {
