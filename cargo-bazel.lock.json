@@ -1,5 +1,5 @@
 {
-  "checksum": "98add6d977d89c0e2f54ebd86b44f1d9350b7dcd7d326b604637d1c93e001f9f",
+  "checksum": "30d56ebeb3130b1d7ea3694661255a9f590d1c518025046349dbc91e4440abba",
   "crates": {
     "ahash 0.3.8": {
       "name": "ahash",
@@ -1549,50 +1549,6 @@
         "version": "0.9.0"
       },
       "license": "MIT/Apache-2.0"
-    },
-    "fastrand 1.8.0": {
-      "name": "fastrand",
-      "version": "1.8.0",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/fastrand/1.8.0/download",
-          "sha256": "a7a407cfaa3385c4ae6b23e84623d48c2798d06e3e6a1878f7f59f17b3f86499"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "fastrand",
-            "crate_root": "src/lib.rs",
-            "srcs": {
-              "include": [
-                "**/*.rs"
-              ],
-              "exclude": []
-            }
-          }
-        }
-      ],
-      "library_target_name": "fastrand",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [],
-          "selects": {
-            "cfg(target_arch = \"wasm32\")": [
-              {
-                "id": "instant 0.1.12",
-                "target": "instant"
-              }
-            ]
-          }
-        },
-        "edition": "2018",
-        "version": "1.8.0"
-      },
-      "license": "Apache-2.0 OR MIT"
     },
     "fnv 1.0.7": {
       "name": "fnv",
@@ -3866,100 +3822,6 @@
         }
       },
       "license": "Apache-2.0 OR MIT"
-    },
-    "instant 0.1.12": {
-      "name": "instant",
-      "version": "0.1.12",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/instant/0.1.12/download",
-          "sha256": "7a5bbe824c507c5da5956355e86a746d82e0e1464f65d862cc5e71da70e94b2c"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "instant",
-            "crate_root": "src/lib.rs",
-            "srcs": {
-              "include": [
-                "**/*.rs"
-              ],
-              "exclude": []
-            }
-          }
-        }
-      ],
-      "library_target_name": "instant",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "crate_features": [
-          "js-sys",
-          "wasm-bindgen",
-          "wasm-bindgen_rs",
-          "web-sys"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "cfg-if 1.0.0",
-              "target": "cfg_if"
-            }
-          ],
-          "selects": {
-            "asmjs-unknown-emscripten": [
-              {
-                "id": "js-sys 0.3.59",
-                "target": "js_sys"
-              },
-              {
-                "id": "wasm-bindgen 0.2.82",
-                "target": "wasm_bindgen",
-                "alias": "wasm_bindgen_rs"
-              },
-              {
-                "id": "web-sys 0.3.59",
-                "target": "web_sys"
-              }
-            ],
-            "wasm32-unknown-emscripten": [
-              {
-                "id": "js-sys 0.3.59",
-                "target": "js_sys"
-              },
-              {
-                "id": "wasm-bindgen 0.2.82",
-                "target": "wasm_bindgen",
-                "alias": "wasm_bindgen_rs"
-              },
-              {
-                "id": "web-sys 0.3.59",
-                "target": "web_sys"
-              }
-            ],
-            "wasm32-unknown-unknown": [
-              {
-                "id": "js-sys 0.3.59",
-                "target": "js_sys"
-              },
-              {
-                "id": "wasm-bindgen 0.2.82",
-                "target": "wasm_bindgen",
-                "alias": "wasm_bindgen_rs"
-              },
-              {
-                "id": "web-sys 0.3.59",
-                "target": "web_sys"
-              }
-            ]
-          }
-        },
-        "edition": "2018",
-        "version": "0.1.12"
-      },
-      "license": "BSD-3-Clause"
     },
     "itertools 0.10.3": {
       "name": "itertools",
@@ -6382,7 +6244,7 @@
               "target": "tokio"
             },
             {
-              "id": "tokio-util 0.7.3",
+              "id": "tokio-util 0.7.4",
               "target": "tokio_util"
             },
             {
@@ -6671,25 +6533,12 @@
           "**"
         ],
         "crate_features": [
-          "default",
-          "fastrand",
-          "instant",
           "macros",
-          "parser",
-          "random",
           "stylist-macros",
           "yew"
         ],
         "deps": {
           "common": [
-            {
-              "id": "fastrand 1.8.0",
-              "target": "fastrand"
-            },
-            {
-              "id": "instant 0.1.12",
-              "target": "instant"
-            },
             {
               "id": "once_cell 1.14.0",
               "target": "once_cell"
@@ -7519,13 +7368,13 @@
       },
       "license": "MIT"
     },
-    "tokio-util 0.7.3": {
+    "tokio-util 0.7.4": {
       "name": "tokio-util",
-      "version": "0.7.3",
+      "version": "0.7.4",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/tokio-util/0.7.3/download",
-          "sha256": "cc463cd8deddc3770d20f9852143d50bf6094e640b485cb2e189a2099085ff45"
+          "url": "https://crates.io/api/v1/crates/tokio-util/0.7.4/download",
+          "sha256": "0bb2e075f03b3d66d8d8785356224ba688d2906a371015e225beeb65ca92c740"
         }
       },
       "targets": [
@@ -7591,7 +7440,7 @@
           }
         },
         "edition": "2018",
-        "version": "0.7.3"
+        "version": "0.7.4"
       },
       "license": "MIT"
     },
@@ -7775,7 +7624,7 @@
               "target": "tokio"
             },
             {
-              "id": "tokio-util 0.7.3",
+              "id": "tokio-util 0.7.4",
               "target": "tokio_util"
             },
             {
@@ -8742,8 +8591,6 @@
           "Node",
           "NodeList",
           "ObserverCallback",
-          "Performance",
-          "PerformanceTiming",
           "PointerEvent",
           "ProgressEvent",
           "ReadableStream",
@@ -9809,7 +9656,6 @@
   "conditions": {
     "aarch64-pc-windows-msvc": [],
     "aarch64-uwp-windows-msvc": [],
-    "asmjs-unknown-emscripten": [],
     "cfg(all(any(target_arch = \"x86_64\", target_arch = \"aarch64\"), target_os = \"hermit\"))": [],
     "cfg(any(target_os = \"linux\", target_os = \"android\", target_os = \"windows\", target_os = \"macos\", target_os = \"ios\", target_os = \"freebsd\", target_os = \"openbsd\", target_os = \"netbsd\", target_os = \"dragonfly\", target_os = \"solaris\", target_os = \"illumos\", target_os = \"fuchsia\", target_os = \"redox\", target_os = \"cloudabi\", target_os = \"haiku\", target_os = \"vxworks\", target_os = \"emscripten\", target_os = \"wasi\"))": [
       "aarch64-apple-darwin",
@@ -9982,10 +9828,6 @@
     ],
     "i686-uwp-windows-gnu": [],
     "i686-uwp-windows-msvc": [],
-    "wasm32-unknown-emscripten": [],
-    "wasm32-unknown-unknown": [
-      "wasm32-unknown-unknown"
-    ],
     "x86_64-pc-windows-gnu": [],
     "x86_64-pc-windows-msvc": [
       "x86_64-pc-windows-msvc"
