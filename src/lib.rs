@@ -59,7 +59,7 @@ fn Navbar() -> Html {
                 <Link<Route> to={Route::Home}><div class="p-4">{"impl Future {}"}</div></Link<Route>>
             </h1>
             <div class="flex items-center">
-                <Link<Route> classes="p-4 text-3xl" to={Route::BlogIndex}>
+                <Link<Route> classes="p-4 text-3xl  " to={Route::BlogIndex}>
                     <button >
                         {"Blog"}
                     </button>

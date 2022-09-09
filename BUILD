@@ -7,6 +7,13 @@ package(
     default_visibility = ["//:__subpackages__"],
 )
 
+config_setting(
+    name = "debug",
+    values = {
+        "compilation_mode": "dbg",
+    },
+)
+
 rust_binary(
     name = "app",
     srcs = ["src/bin/app.rs"],
@@ -15,6 +22,17 @@ rust_binary(
     proc_macro_deps = all_crate_deps(
         proc_macro = True,
     ),
+    rustc_flags = select({
+        ":debug": [
+            "-Copt-level=0",
+        ],
+        "//conditions:default": [
+            "-Clto",
+            "-Ccodegen-units=1",
+            "-Cpanic=abort",
+            "-Copt-level=z",
+        ],
+    }),
     deps = all_crate_deps(
         normal = True,
     ) + [
