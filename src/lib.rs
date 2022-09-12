@@ -33,7 +33,7 @@ pub fn App() -> Html {
 
 #[derive(Properties, PartialEq, Debug)]
 pub struct ServerAppProps {
-    pub url: AttrValue,
+    pub path: AttrValue,
     pub queries: HashMap<String, String>,
 }
 
@@ -41,7 +41,7 @@ pub struct ServerAppProps {
 pub fn ServerApp(props: &ServerAppProps) -> Html {
     let history = AnyHistory::from(MemoryHistory::new());
     history
-        .push_with_query(&*props.url, &props.queries)
+        .push_with_query(&*props.path, &props.queries)
         .unwrap();
 
     html! {

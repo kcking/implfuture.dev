@@ -55,7 +55,7 @@ async fn index(
     let out = LOCAL_POOL
         .spawn_pinned(|| async move {
             let props = ServerAppProps {
-                url: url.uri().to_string().into(),
+                path: url.uri().path().to_owned().into(),
                 queries,
             };
             let mut out = String::new();
@@ -94,11 +94,18 @@ async fn main() -> Result<()> {
     );
     let route_service = get_service(route_service).layer(Extension(INDEX_HTML.to_string()));
 
-    let addr = std::env::var("HTTP_LISTEN_ADDR").unwrap_or("127.0.0.1:8080".into());
-    eprintln!("starting server on {}", addr);
-    axum::Server::bind(&addr.parse()?)
-        .serve(get_service(route_service).into_make_service())
-        .await?;
+    if lambda_web::is_running_on_lambda() {
+        eprintln!("starting server on lambda");
+        lambda_web::run_hyper_on_lambda(route_service)
+            .await
+            .map_err(|e| anyhow::anyhow!("{:?}", e))?;
+    } else {
+        let addr = std::env::var("HTTP_LISTEN_ADDR").unwrap_or("127.0.0.1:8080".into());
+        eprintln!("starting server on {}", addr);
+        axum::Server::bind(&addr.parse()?)
+            .serve(get_service(route_service).into_make_service())
+            .await?;
+    }
 
     Ok(())
 }

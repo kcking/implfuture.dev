@@ -21,6 +21,7 @@ yew = { version = "0.19", features = ["ssr"] }
 yew-router = { version = "0.16.0" }
 futures = "0.3.21"
 lazy_static = "1.4.0"
+lambda-web = { version = "0.2.0", features = ["hyper"] }
 
 [patch.'crates-io']
 # yew = { path = "../yew/packages/yew" }
