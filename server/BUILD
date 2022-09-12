@@ -103,7 +103,7 @@ container_push(
     name = "push-amd64",
     format = "Docker",
     image = ":image-amd64",
-    registry = "us-west1-docker.pkg.dev",
-    repository = "implfuture/implfuture/server",
+    registry = "689191389309.dkr.ecr.us-west-1.amazonaws.com",
+    repository = "implfuture",
     tag = "latest",
 )
