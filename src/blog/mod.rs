@@ -159,6 +159,7 @@ pub struct Metadata {
     date: time::Date,
     slug: &'static str,
     subtitle: &'static str,
+    published: bool,
 }
 
 const BLOG_POSTS: &[(Metadata, &dyn Fn(&Metadata) -> Html)] = &[
@@ -168,6 +169,7 @@ const BLOG_POSTS: &[(Metadata, &dyn Fn(&Metadata) -> Html)] = &[
             slug: "building-a-blog-like-its-2022",
             title: "Building a Blog Like it's 2022 ✨",
             subtitle: "With Next.js, typescript, react, mdx, rust + wasm",
+            published: true,
         },
         &post1::post,
     ),
@@ -177,6 +179,7 @@ const BLOG_POSTS: &[(Metadata, &dyn Fn(&Metadata) -> Html)] = &[
             slug: "rewriting-modern-web-in-rust",
             title: "Rewriting Modern Web in Rust",
             subtitle: "ssr, mdx, hooks",
+            published: false,
         },
         &post2::post_2,
     ),
@@ -199,6 +202,7 @@ pub fn blog_index() -> Html {
     let fmt = time::macros::format_description!("[month repr:short] [day], [year]");
     BLOG_POSTS
         .iter()
+        .filter(|(md, _)| option_env!("SHOW_UNPUBLISHED").is_some() || md.published)
         .map(|(metadata, _)| {
             html! {
               <div class="py-4">

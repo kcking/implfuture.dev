@@ -1,4 +1,5 @@
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("@rules_rust//wasm_bindgen:wasm_bindgen.bzl", "rust_wasm_bindgen")
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library")
 load("//emsdk:emsdk.bzl", "wasmopt")
@@ -12,6 +13,11 @@ config_setting(
     values = {
         "compilation_mode": "dbg",
     },
+)
+
+bool_flag(
+    name = "show_drafts",
+    build_setting_default = False,
 )
 
 rust_binary(
@@ -55,9 +61,22 @@ rust_library(
     proc_macro_deps = all_crate_deps(
         proc_macro = True,
     ),
+    rustc_env = select({
+        ":show_drafts_config": {
+            "SHOW_UNPUBLISHED": "1",
+        },
+        "//conditions:default": {},
+    }),
     deps = all_crate_deps(
         normal = True,
     ),
+)
+
+config_setting(
+    name = "show_drafts_config",
+    flag_values = {
+        "//:show_drafts": "1",
+    },
 )
 
 rust_wasm_bindgen(
