@@ -36,7 +36,6 @@ static LOCAL_POOL: Lazy<LocalPoolHandle> = Lazy::new(|| LocalPoolHandle::new(num
 fn html_wasm_init_head() -> String {
     format!(
         r#"
-
     <script type="module">
       import init from "{js_path}";
       init("{wasm_path}");

@@ -19,6 +19,13 @@ rust_binary(
     proc_macro_deps = all_crate_deps(
         proc_macro = True,
     ),
+    rustc_flags = select({
+        "//:debug": [
+            "-Copt-level=0",
+        ],
+        "//:fastbuild": [],
+        "//conditions:default": [],
+    }),
     deps = all_crate_deps(
         normal = True,
     ) + ["//:implfuture"],
@@ -99,6 +106,7 @@ container_image(
     workdir = "/app",
 )
 
+# uses https://github.com/awslabs/amazon-ecr-credential-helper
 container_push(
     name = "push-amd64",
     format = "Docker",

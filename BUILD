@@ -15,6 +15,13 @@ config_setting(
     },
 )
 
+config_setting(
+    name = "fastbuild",
+    values = {
+        "compilation_mode": "fastbuild",
+    },
+)
+
 bool_flag(
     name = "show_drafts",
     build_setting_default = False,
@@ -32,6 +39,7 @@ rust_binary(
         ":debug": [
             "-Copt-level=0",
         ],
+        ":fastbuild": [],
         "//conditions:default": [
             "-Clto",
             "-Ccodegen-units=1",
