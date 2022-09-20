@@ -1,3 +1,85 @@
-# Rust with SSR, MDX, Hooks
+# Zero to SPA in Full-Stack Rust
 
-> Test 1234567890123121
+> Building a modern web app with Rust, Bazel, Yew and Axum.
+
+Earlier this year I [rewrote my website](/blog/building-a-blog-like-its-2022)
+with Next.js, React, tsx, and mdx. Having tried full-stack rust in the past, I
+didn't think its developer experience was on par with the Next.js stack. Well
+times have changed, and I wanted to see just how far I could push rust to feel
+like Next.js. So I did what any developer would do and rewrote my personal
+site... again.
+
+## The Destination
+
+This post is a summary of my journey to a full-stack rust web application. I'll
+give an overview of how I used Yew and Axum to build a single-page
+application (SPA) with server-side rendering (SSR), Hooks (Yew function
+components), Markdown with embedded Yew components (MDX), and code syntax
+highlighting with Prismjs. The entire build uses Bazel's rust support, including
+a local development server, cross-compiling to linux with zig, and assembling a
+container image for deployment to a serverless or container runtime.
+
+Let's get started!
+
+## Yew Function Components (Hooks)
+
+When I last rewrote my personal site, I found [React
+Hooks](https://reactjs.org/docs/hooks-intro.html) to be an elegant way to write
+UI state and render logic. I wanted a similar experience for this rewrite, and was stoked to see Yew now has Hooks, by the name of [Function Components](https://yew.rs/docs/concepts/function-components/introduction).
+
+A function component is a modular UI element represented as a function. The
+function takes in parameters (called Props), evaluates any necessary business
+logic, sets up interactive callbacks like `onclick` handlers, and finally
+returns an HTML-like rendering of the UI. Function components map onto MVC where
+the Props are the model, the function body is the controller, and the return
+value is the view.
+
+```rust
+// A simple function component
+#[function_component]
+fn Counter(/* no props */) -> Html {
+    //  store an integer count
+    let count = use_state(|| 0);
+    let s = count.clone();
+
+    html! {
+        //  increment on click
+        <button onclick={ move |_| count.set(*count + 1)}>
+            {"Counter "}{s}
+        </button>
+    }
+}
+```
+
+The above code renders as: <Counter />. It's that easy to create an interactive
+component that stores state and responds to input. It's also trivial to compose
+them by just adding `<ComponentName />` to the return value of the parent
+component.
+
+<!-- TODO: show a more on-trivial component, perhaps blog index -->
+<!-- TODO:  -->
+
+## Single-Page Application (SPA) Routing
+
+Now that we've covered the core app logic using function components, the next
+piece of the puzzle is how components are organized in a hierarchy.
+
+## SSR
+
+## MDX
+
+## Bazel
+
+## WASM Code-Size Optimization
+
+### `wasm-opt`
+
+### Brotli
+
+## Deployment
+
+## Wishlist
+
+Code-splitting
+inline rust in MDX with curly-braces
+hot-reload
