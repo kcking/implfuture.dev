@@ -4,7 +4,8 @@ mod syntaxhighlight;
 
 use time::macros::date;
 use yew::{
-    function_component, html, include_mdx, mdx, mdx_style, use_state, Children, Html, Properties,
+    function_component, html, include_mdx, mdx, mdx_style, use_callback, use_effect, use_state,
+    Children, Html, Properties,
 };
 use yew_router::prelude::Link;
 
@@ -30,6 +31,9 @@ pub struct ChildProps {
     #[prop_or_default]
     children: Children,
 }
+
+const HEADER_LINK_LEN: usize = 20;
+
 #[function_component]
 fn MyH1(c: &ChildProps) -> Html {
     let mut tag = String::new();
@@ -42,7 +46,7 @@ fn MyH1(c: &ChildProps) -> Html {
         };
     }
     tag = tag.replace(" ", "-").to_lowercase();
-    tag.truncate(12);
+    tag.truncate(HEADER_LINK_LEN);
     html! {
       <a class="text-inherit" href={format!("#{tag}")}>
         <h1 id={tag} class="text-4xl py-4">
@@ -64,7 +68,7 @@ fn MyH2(c: &ChildProps) -> Html {
         };
     }
     tag = tag.replace(" ", "-").to_lowercase();
-    tag.truncate(12);
+    tag.truncate(HEADER_LINK_LEN);
     html! {
       <a class="text-inherit" href={format!("#{tag}")}>
         <h2 id={tag} class="text-2xl py-4">
@@ -138,11 +142,11 @@ fn HeyComponent(props: &HeyProps) -> Html {
 #[function_component]
 fn Counter() -> Html {
     let count = use_state(|| 0);
-    let s = count.to_string();
+    let click = use_callback(|_, [count]| count.set(**count + 1), [count.clone()]);
 
     html! {
-        <button onclick={ move |_| count.set(*count + 1)} class="bg-gray-300/30 rounded select-none p-2">
-        {"Counter "}{s}
+        <button onclick={ click } class="bg-gray-300/30 rounded select-none p-2">
+        {"Counter "}{*count}
         </button>
     }
 }

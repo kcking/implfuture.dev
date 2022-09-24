@@ -29,7 +29,7 @@ UI state and render logic. I wanted a similar experience for this rewrite, and w
 
 A function component is a modular UI element represented as a function. The
 function takes in parameters (called Props), evaluates any necessary business
-logic, sets up interactive callbacks like `onclick` handlers, and finally
+logic, sets up interactive callbacks (like `onclick` handlers), and finally
 returns an HTML-like rendering of the UI. Function components map onto MVC where
 the Props are the model, the function body is the controller, and the return
 value is the view.
@@ -37,15 +37,15 @@ value is the view.
 ```rust
 // A simple function component
 #[function_component]
-fn Counter(/* no props */) -> Html {
+fn Counter() -> Html {
     //  store an integer count
     let count = use_state(|| 0);
-    let s = count.clone();
+    //  increment on click
+    let click = use_callback(|_, [count]| count.set(**count + 1), [count.clone()]);
 
     html! {
-        //  increment on click
-        <button onclick={ move |_| count.set(*count + 1)}>
-            {"Counter "}{s}
+        <button onclick={ click }>
+            {"Counter "}{*count}
         </button>
     }
 }
@@ -56,19 +56,164 @@ component that stores state and responds to input. It's also trivial to compose
 them by just adding `<ComponentName />` to the return value of the parent
 component.
 
-<!-- TODO: show a more on-trivial component, perhaps blog index -->
-<!-- TODO:  -->
+TODO: show a more on-trivial component, perhaps blog index
 
 ## Single-Page Application (SPA) Routing
 
 Now that we've covered the core app logic using function components, the next
 piece of the puzzle is how components are organized in a hierarchy.
 
-## SSR
+One advantage of writing an application as a SPA is that the browser does not
+"reload" or flash when the user navigates to another page. Instead, when the
+user clicks a button or link, local application code on the frontend renders and
+replaces the DOM. This also eliminates the latency of requesting a new page from
+the server.
+
+Yew comes with SPA support included in the form of
+[`yew-router`](https://docs.rs/yew-router). Similar to
+[`react-router`](https://v5.reactrouter.com/web/guides/quick-start),
+`yew-router` lets you define a hierarchy of application routes, and then map
+each route to a specific component. Here's how my website is structured:
+
+```rust
+//  My website routes
+enum Route {
+    #[at("/")]
+    Home,
+    #[at("/blog")]
+    BlogIndex,
+    #[at("/blog/:slug")]
+    BlogPost { slug: String },
+    #[at("/projects")]
+    Projects,
+}
+```
+
+Each variant of the `Route` enum is a different page on my website. The
+`#[at(..)]` attribute macro tells Yew what the path of each page should be.
+Routes can even have parameters, which I used in the `BlogPost` variant to
+specify which post should be rendered.
+
+Here's the (simplified) route-to-component routing logic for this website:
+
+```rust
+fn switch(route: Route) -> Html {
+    match route {
+        Route::Home => html! {
+            <h1>{"impl Future {}"}</h1>
+        },
+        Route::BlogIndex => blog::blog_index(),
+        Route::BlogPost{slug} => blog::render(&slug),
+        Route::Projects => html! {
+            <Projects />
+        },
+    }
+}
+```
+
+Since `Route` is a rust enum, I am forced to implement every possible route. If
+I were to add another route to the enum, the compiler would error until I also
+implement the render logic in this `switch` function. The `BlogIndex` variant
+takes advantage of the arbitrary structure of rust enums -- I know that if
+`route` is `BlogIndex`, there is also a valid `slug: String` field that was
+parsed by `yew-router`.
+
+## Server-Side Rendering (SSR)
+
+SPAs are great but pose a couple of problems:
+
+- The client has to download all of the application code (in this case WASM)
+  before the page can be rendered.
+- Web crawlers will run a limited amount of code to understand the content of
+  your website, resulting in bad Search Engine Optimization (SEO).
+
+Similar issues exist in the React/javascript world, and the most comomn solution
+is Server-Side Rendering. Here is the typical SSR flow:
+
+1. The server receives the initial HTTP request from the client
+1. The server runs its own copy of the application code on the path of the request
+1. The resulting DOM is serialized to a string and injected into the initial HTML response
+1. The client immediately renders the initial HTML page and download the application code
+1. The client starts the local application which attaches to the initial DOM nodes (also called hydration)
+
+Luckily, Yew has [implemented
+both](https://yew.rs/docs/next/advanced-topics/server-side-rendering) the
+render-to-string and hydration steps! This just leaves tying it all together
+with a web server.
+
+Let's see how we can make this all work with [Axum](https://docs.rs/axum).
+
+The basic logic we need to handle an incoming request is:
+
+1. If the path matches a path in our Yew app, serve `index.html` with first
+   render of that page injected into it.
+2. Otherwise, try serving a static file from `static/`.
+
+For the first part, we need a tower service that detects whether a path matches
+our Yew app, and otherwise calls another fallback service. I couldn't find
+anything in axum or tower that would do this out of the box, so I wrote my own
+service:
+
+```rust
+//  tower service that matches a request to a Yew App route, or falls back to
+//  another service (lots of boilerplate omitted)
+struct RoutableService<S, F> {
+    yew_service: S,
+    fallback_service: F,
+}
+
+impl <R, S, F> Service for RoutableService
+where
+    R: yew_router::Routable, S: Service, F: Service,
+{
+     fn call(&mut self, req: Request<Body>) -> Self::Future {
+        match <R as Routable>::recognize(req.uri().path()).is_some() {
+            //  if request path matches Yew route, serve S
+            true => self.yew_service.call(req),
+            //  else serve F
+            false => self.fallback_service.call(req),
+        }
+    }
+}
+```
+
+For the full version, check it out [on
+GitHub](https://github.com/kcking/implfuture.dev/blob/814f23dfa63065368dae0ba5e8f348592a8ae20d/server/src/main.rs#L113).
+
+With a Yew-route-aware service, everything can now be pulled together:
+
+```rust
+fn yew_ssr(req: Request) -> impl IntoResponse {
+    let props = ServerAppProps {
+        path: url.uri().path().to_owned().into(),
+        queries,
+    };
+    let mut out = String::new();
+    yew::ServerRenderer::<implfuture::ServerApp>::with_props(props)
+        .render_to_string(&mut out)
+        .await;
+    //  index.html contents read at compile-time, with first render injected
+    //  into <body>
+    INDEX_HTML.replace("<body>", &format!("<body>{}", out));
+}
+
+//  static files like wasm, js, images, and css
+let static_serve = tower_http::ServeDir::new("static");
+
+//  Try Yew app first, fall-back to static files.
+let serve = RoutableService {
+    yew_service: yew_ssr,
+    fallback_service: static_serve,
+};
+```
 
 ## MDX
 
+
+
 ## Bazel
+
+## PrismJS
 
 ## WASM Code-Size Optimization
 
