@@ -209,9 +209,104 @@ let serve = RoutableService {
 
 ## MDX
 
+While Yew's `html!` macro is great for writing small components, writing a blog
+post out by hand would be painstaking. I loved using MDX with embedded
+typescript React components in my last website rewrite, and wanted to bring the
+same experience to rust/yew.
 
+I added an [`mdx!` macro](https://github.com/kcking/yew/blob/mdx/packages/yew-macro/src/mdx/mod.rs) to the `yew_macro` crate which lets me write
+
+````rust
+mdx! {r#"
+    # Title
+    A list of things:
+    - thing One
+    - thing Two
+    ```rust
+    // rust code block
+    fn main() {}
+    ```
+"#}
+````
+
+instead of the equivalent `html!` syntax:
+
+```rust
+html! {
+    <h1> {"Title"} </h1>
+    <p>{"A list of things:"}</p>
+    <ul>
+        <li>{"thing One"}</li>
+        <li>{"thing Two"}</li>
+    </ul>
+    <pre><code>
+    // rust code block
+    fn main() {}
+    </code></pre>
+}
+```
+
+> Note: the string literal wrapper in `mdx!` is a work-around to have a
+> whitespace-sensitive proc-macro. If anyone knows a cleaner alternative let me
+> know!
+
+The `mdx!` proc-macro is a Markdown frontend to the `yew::html!` macro. It uses
+the [`pulldown-cmark`](https://docs.rs/pulldown-cmark) crate to convert `#` to
+`<h1></h1>`, \`\` to `<code></code>`, and so on.
+
+Yew components can be embedded with their usual html syntax:
+
+```rust
+fn MyComponent() { html! {<p>{"Component"}</p>}}
+
+mdx! {r#"
+    <Component />
+"#}
+```
+
+I also added support for replacing all instances of an element with a custom Yew
+component. For example, all header tags on my blog are labelled with an `id`
+based on their text and are turned into clickable links.
+
+```rust
+mdx_style!(
+    h1: MyH1,
+);
+
+fn MyH1(c: &ChildProps) -> Html {
+    let slug = /* turn header text into string */;
+    html! {
+        //  Make all headers deeplink-able
+        <a href={format!("#{slug}")}>
+            <h1 id={tag}>
+                {c.children.clone()}
+            </h1>
+        </a>
+    }
+}
+```
+
+To top it off, I added an `include_mdx!` macro to parse an external Markdown
+file from rust code. This lets me write Markdown with all of the usual IDE
+support, and without the `r#""#` wrapper.
+
+```markdown
+blog.mdx
+
+# Blog Post
+
+> Subtitle
+```
+
+```rust
+fn blog() -> Html {
+    include_mdx!("blog.mdx")
+}
+```
 
 ## Bazel
+
+## Tailwind
 
 ## PrismJS
 
@@ -228,3 +323,4 @@ let serve = RoutableService {
 Code-splitting
 inline rust in MDX with curly-braces
 hot-reload
+bazel remote cache
