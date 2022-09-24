@@ -71,20 +71,19 @@ async fn index(
     Html(html)
 }
 
+async fn handle_error(e: impl std::fmt::Debug) -> impl IntoResponse {
+    eprintln!("{e:?}");
+    StatusCode::BAD_REQUEST
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let mut app_wasm_serve = ServeDir::new(".");
     if option_env!("AXUM_PRECOMPRESSED_WASM").is_some() {
         app_wasm_serve = app_wasm_serve.precompressed_br();
     }
-    let app_wasm_serve = get_service(app_wasm_serve).handle_error(|e| async move {
-        dbg!(e);
-        StatusCode::BAD_REQUEST
-    });
-    let static_serve = get_service(ServeDir::new("static")).handle_error(|e| async move {
-        dbg!(e);
-        StatusCode::BAD_REQUEST
-    });
+    let app_wasm_serve = get_service(app_wasm_serve).handle_error(handle_error);
+    let static_serve = get_service(ServeDir::new("static")).handle_error(handle_error);
     let route_service = RoutableService::<implfuture::Route, _, _>::new(
         get(index),
         route(*APP_JS_PATH, app_wasm_serve.clone())
