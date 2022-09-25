@@ -290,7 +290,7 @@ To top it off, I added an `include_mdx!` macro to parse an external Markdown
 file from rust code. This lets me write Markdown with all of the usual IDE
 support, and without the `r#""#` wrapper.
 
-```markdown
+```md
 blog.mdx
 
 # Blog Post
@@ -425,7 +425,7 @@ to recompile the server since CSS is just a runtime data dependency.
 
 With all of this set up, we can run a local development server with
 
-```bash
+```
 $ bazel run //server
 iBazel: Starting...
 starting server on 127.0.0.1:8080
@@ -434,13 +434,80 @@ starting server on 127.0.0.1:8080
 If we want things to automatically rebuild, all we need to do is use
 [`ibazel`](https://github.com/bazelbuild/bazel-watcher) instead of `bazel`
 
-```bash
+```
 $ ibazel run //server
 iBazel: Starting...
 starting server on 127.0.0.1:8080
 ```
 
 ## Tailwind
+
+While writing React apps, I grew accustomed to using
+[TailwindCSS](https://tailwindcss.com/) for styling individual elements.
+Tailwind defines many short class names for commonly used CSS. For example,
+`class="py-4"` in HTML will correspond to `.py-4 { padding-top: 1rem; padding-bottom: 1rem; }` in CSS.
+
+To minimize the size of Tailwind's CSS file, it scans your source code to see which classes you
+are using. This is normally done on javascript or typescript, but Tailwind can
+be configured to run on any file, including rust:
+
+```js
+// /tailwind.config.js
+module.exports = {
+  content: ["src/**/*.rs"],
+  // ...
+};
+```
+
+With Tailwind configured, we need a way for bazel to run the Tailwind cli,
+`tailwindcss`, and generate our CSS file. Instead of relying on the developer to
+have `tailwindcss` installed, we can do things the Bazel way and have a specific
+version of the Tailwind toolchain installed.
+
+A `package.json` file defines what libraries we need
+
+```json
+//  /package.json
+{
+  "name": "implfuture",
+  "version": "0.1.0",
+  "dependencies": {},
+  "devDependencies": {
+    "tailwindcss": "^3.1.8"
+  }
+}
+```
+
+And in our `WORKSPACE` file, we install those packages
+
+```py
+# /WORKSPACE
+# use bazel rules_nodesjs to install
+yarn_install(
+    name = "root_npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
+```
+
+The `tailwindcss` binary is now available to other bazel rules we write. Bazel
+has a special rule called
+[`genrule`](https://bazel.build/reference/be/general#genrule) that lets you
+define a rule using a shell command. Here's the `genrule` to generate the
+tailwind CSS file.
+
+```py
+# /BUILD
+
+genrule(
+    # include our rust files to scan, and the tailwind configuration
+    srcs = glob(["src/**/*.rs"]) + ["tailwind.config.js"],
+    outs = ["static/tailwind.css"],
+    cmd = "node bazel-out/host/bin/external/root_npm/node_modules/tailwindcss/lib/cli.js --output=$(OUTS)",
+    tools = ["@root_npm//tailwindcss"],
+    visibility = ["//:__pkg__"],
+)
+```
 
 ## PrismJS
 

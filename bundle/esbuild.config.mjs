@@ -13,6 +13,8 @@ export default {
         "bash",
         "tsx",
         "python", // for BUILD files and starlark
+        "markdown",
+        "json",
       ],
       plugins: [
         // "line-highlight",
