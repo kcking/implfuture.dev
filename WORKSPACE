@@ -116,9 +116,9 @@ emsdk_emscripten_deps(emscripten_version = "3.1.19")
 # )
 git_repository(
     name = "bazel-zig-cc",
-    commit = "2f0ae4affa5ddc64a4fa701e2b6d3261e5058353",
+    commit = "f6b16c386f91232372e9f3cc335b48c56d7d5b4c",
     remote = "https://git.sr.ht/~motiejus/bazel-zig-cc",
-    shallow_since = "1662114099 +0300",
+    shallow_since = "1664103119 +0300",
 )
 
 load("@bazel-zig-cc//toolchain:defs.bzl", zig_toolchains = "toolchains")

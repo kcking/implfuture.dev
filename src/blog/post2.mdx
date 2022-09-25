@@ -776,7 +776,48 @@ beforehand.
 
 ## Deployment
 
-### bazel-zig-cc
+To top it all off, I needed a way to package and host the web app. When using
+Next.js, Vercel was the obvious option. Instead, I decided to cross-compile the
+web server to linux and pacakge it into a container.
+
+### Cross-Compilation
+
+Rust includes support for cross-compilation, and adding the platforms I needed was as simple as adding these lines to my `WORKSPACE`:
+
+```py
+# /WORKSPACE
+
+rust_register_toolchains(extra_target_triples = [
+    "wasm32-unknown-unknown",
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+])
+```
+
+`rules_rust` uses the same bazel toolchain abstraction I mentioned in the
+`wasm-opt` section of this post, and the cross-compilation really Just Works.
+
+However, many rust crates also use C or C++, and I needed a toolchain that could
+cross-compile those languages. When looking for the easiest cross-compilation
+toolchain to use, I stumbled upon the blog post ["Zig Makes Go Cross Compilation Just
+Work"](https://dev.to/kristoff/zig-makes-go-cross-compilation-just-work-29ho)
+and a follow-on ["Zig Makes Rust Cross Compilation Just
+Work"](https://actually.fyi/posts/zig-makes-rust-cross-compilation-just-work/).
+These posts showcase using `zig` as a drop-in replacement for a C compiler and
+linker with great success.
+
+Luckily, the [`bazel-zig-cc`](https://git.sr.ht/~motiejus/bazel-zig-cc) project provides bazel toolchain abstractions for
+the `zig` C/C++ toolchain. After recommending [a small
+fix](https://git.sr.ht/~motiejus/bazel-zig-cc/commit/79674a1d966b5c196a6f729ac7423223dc05cf83)
+to address how `cargo` invokes `zig` as a linker, all I had to do was register
+the linux `zig` toolchains in my `WORKSPACE`.
+
+One minor issue I ran into was that `cargo` would have issues when using a
+cross-compilation toolchain and compiling for the host architecture. To address
+this, I wrote a
+[wrapper](https://github.com/kcking/implfuture.dev/blob/490e84277c365cbdc332ffc15219308a809569d9/zig/zig.bzl)
+around zig toolchain registration that omits the zig toolchain for the host
+architecture.
 
 ### Container Image
 

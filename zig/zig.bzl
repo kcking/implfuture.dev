@@ -1,9 +1,10 @@
 """ 
 conditionally register zig toolchains based on host
-currently zig-cc fails to compile for the host target for various reasons
+currently zig-cc fails to compile for the host target for various reasons:
+    macos: note: warning(link): library not found for '-liconv'
 """
 
-# NOTE: these are Java constants since this is a repository_rule
+# NOTE: these os and arch values are Java constants since this is a repository_rule
 
 TOOLCHAIN_TO_OS = {
     "@zig_sdk//toolchain:linux_amd64_gnu.2.19": struct(os = "linux", arch = "amd64"),
