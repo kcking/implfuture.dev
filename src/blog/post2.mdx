@@ -504,12 +504,160 @@ genrule(
     srcs = glob(["src/**/*.rs"]) + ["tailwind.config.js"],
     outs = ["static/tailwind.css"],
     cmd = "node bazel-out/host/bin/external/root_npm/node_modules/tailwindcss/lib/cli.js --output=$(OUTS)",
+    # pull in npm dependency
     tools = ["@root_npm//tailwindcss"],
     visibility = ["//:__pkg__"],
 )
 ```
 
 ## PrismJS
+
+No good developer blog post is complete without syntax highlighting. I tried to
+find a rust-native implementation of syntax highlighting, but I couldn't find
+anything as full-featured as PrismJS (which is what I used for the previous
+rewrite of this site). While I had avoided javascript for as long as possible, I
+thought this might be a good opportunity to try incorporating a JS library with
+a Yew app.
+
+My approach was to create a separate Javascript file that would bundle any JS
+dependencies our app uses and link to it in the `index.html` file. In the
+interest of keeping things bazel-y, I defined another `package.json` for runtime
+dependencies in the `bundle/` folder:
+
+```json
+// /bundle/package.json
+
+{
+  "name": "implfuture",
+  "version": "0.1.0",
+  "dependencies": {
+    "prismjs": "^1.28.0"
+  }
+}
+```
+
+```py
+# /WORKSPACE
+
+yarn_install(
+    name = "app_npm",
+    package_json = "//bundle:package.json",
+    yarn_lock = "//bundle:yarn.lock",
+)
+```
+
+Since there are bazel rules for it, I used the [`esbuild`](https://esbuild.github.io/) bundler to bundle
+prism. There's even an [esbuild prismjs
+plugin](https://npm.io/package/esbuild-plugin-prismjs) that helps configure
+PrismJS features and included languages.
+
+The whole app bundle is pulled together in the `bundle/BUILD` file:
+
+```py
+# /bundle/BUILD
+
+# typescript bundle entrypoint
+ts_project(
+    name = "tsproject",
+    srcs = [
+        "app.ts",
+    ],
+    deps = ["@app_npm//prismjs"],
+)
+
+# output bundle, served by web server
+esbuild(
+    name = "bundle",
+    config = ":esbuild_config",
+    entry_point = "app.ts",
+    visibility = ["//:__pkg__"],
+    deps = [
+        ":tsproject",
+    ],
+)
+
+esbuild_config(
+    name = "esbuild_config",
+    # includes configuration of PrismJS
+    config_file = "esbuild.config.mjs",
+    deps = [
+        "@root_npm//esbuild",
+        "@root_npm//esbuild-plugin-prismjs",
+    ],
+)
+```
+
+With PrismJS available to my app at runtime, I could now use it from Yew.
+PrismJS can be configured to automatically syntax highlight any code it finds in
+the DOM, but care must be taken when using Yew. Yew expects to be the only code
+manipulating the DOM. If something else adds or removes DOM nodes, it can cause
+unexpected behavior when Yew comes back to re-render that part of the page.
+
+To have full control over when Prism highlights a code block, I chose to use the
+`Prism.highlightElement` function. First, it must be defined in rust as `extern fn`:
+
+```rust
+mod prism {
+    use wasm_bindgen::prelude::*;
+    #[wasm_bindgen]
+    extern "C" {
+        #[wasm_bindgen(js_namespace = Prism)]
+        pub fn highlightElement(element: web_sys::Element);
+    }
+}
+```
+
+Then I defined a Yew component that highlights code:
+
+```rust
+fn HighlightCode(c: &super::ChildProps) -> Html {
+    //  save code tag to be used for highlighting
+    let code_ref = use_state_eq(|| NodeRef::default());
+    let mut code_tag = c.children.iter().next().unwrap().clone();
+    match &mut code_tag {
+        VNode::VTag(t) => t.node_ref = (*code_ref).clone(),
+        _ => {}
+    };
+
+    use_effect_with_deps(
+        move |_| {
+            //  highlight code whenever children change, causes Prism to add DOM
+            //  nodes under .codecontainer div
+            let element = code_ref.cast::<Element>().unwrap();
+            prism::highlightElement(element.clone());
+
+            //  cleanup: remove DOM nodes created by Prism
+            move || {
+                element
+                    .closest(".codecontainer")
+                    .ok()
+                    .flatten()
+                    .map(|e| e.remove());
+            }
+        },
+        c.children.clone(),
+    );
+
+    html! {
+        //  wrap everything in a .codecontainer div for easier cleanup
+        <div class="codecontainer">
+            <pre class="overflow-auto m-4 p-6 bg-gray-300/5 rounded">
+                {code_tag}
+            </pre>
+        </div>
+    }
+}
+```
+
+This component makes use of
+[`use_effect_with_deps`](https://docs.rs/yew/latest/yew/functional/fn.use_effect_with_deps.html)
+to re-highlight code whenever the contents of the DOM node change. The closure
+returned in `use_effect_with_deps` is the cleanup code, and is run whenever this
+component is un-mounted from the DOM. The cleanup code is meant to restore the
+DOM to its previous state before the Prism highlighting. It works in practice,
+but I still get a warning from Yew (`app_wasm.js:437 Node not found to remove VTag`)
+when I navigate away from a page with syntax highlighting. Clearly this still
+needs some tweaking 🙂.
 
 ## WASM Code-Size Optimization
 
@@ -531,3 +679,4 @@ Code-splitting
 inline rust in MDX with curly-braces
 hot-reload
 bazel remote cache
+web-server API
