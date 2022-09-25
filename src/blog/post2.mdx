@@ -821,6 +821,52 @@ architecture.
 
 ### Container Image
 
+With my cross-compiled server binary ready to go, the next step was packaging it
+into a container. [`rules_docker`](https://github.com/bazelbuild/rules_docker)
+provides bazel rules to create and manage OCI containers.
+
+I first used the built-in `pkg_tar` rule to bundle all of the relevant files into one archive:
+
+```py
+# /server/BUILD
+
+pkg_tar(
+    name = "opt_tar",
+    # :opt refers to optimized server artifacts that have passed through
+    # wasm-opt and brotli
+    srcs = [":opt"],
+    include_runfiles = True,
+    package_dir = "/app",
+    # keeps relative path consistent for static files in both dev and release
+    strip_prefix = "/server",
+)
+```
+
+Then a single `container_image` rule packages everything into a container:
+
+```py
+# /server/BUILD
+
+container_image(
+    name = "image-amd64",
+    architecture = "amd64",
+    # References google-maintained base image defined in /WORKSPACE
+    base = "@cc_base//image",
+    cmd = ["/app/opt"],
+    env = {
+        # configure binary for production
+        "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
+    },
+    tars = [":opt_tar"],
+    workdir = "/app",
+)
+```
+
+> Note: `container_image` uses a [custom go
+> library](https://github.com/bazelbuild/rules_docker/blob/master/container/go/pkg/oci/image.go)
+> to build the image instead of requiring a Docker cli/daemon, however this tool
+> doesn't currently work on Windows.
+
 ### Serverless
 
 ## Wishlist / TODO
