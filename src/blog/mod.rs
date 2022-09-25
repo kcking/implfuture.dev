@@ -6,8 +6,8 @@ use std::borrow::Borrow;
 
 use time::macros::date;
 use yew::{
-    function_component, html, include_mdx, mdx, mdx_style, use_callback, use_state,
-    virtual_dom::VList, Children, Html, Properties,
+    function_component, html, include_mdx, mdx, mdx_style, use_callback, use_state, Children, Html,
+    Properties,
 };
 use yew_router::prelude::Link;
 
@@ -41,7 +41,6 @@ const HEADER_LINK_LEN: usize = 20;
 #[function_component]
 fn MyH1(c: &ChildProps) -> Html {
     let mut tag = String::new();
-    c.children.iter();
     for c in c.children.iter() {
         match c {
             yew::virtual_dom::VNode::VText(t) => {
