@@ -15,7 +15,7 @@ use futures::ready;
 use implfuture::ServerAppProps;
 use once_cell::sync::Lazy;
 use tokio_util::task::LocalPoolHandle;
-use tower::{service_fn, Service};
+use tower::Service;
 use tower_http::services::ServeDir;
 use yew_router::Routable;
 

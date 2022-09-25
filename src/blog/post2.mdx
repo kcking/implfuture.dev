@@ -25,7 +25,9 @@ Let's get started!
 
 When I last rewrote my personal site, I found [React
 Hooks](https://reactjs.org/docs/hooks-intro.html) to be an elegant way to write
-UI state and render logic. I wanted a similar experience for this rewrite, and was stoked to see Yew now has Hooks, by the name of [Function Components](https://yew.rs/docs/concepts/function-components/introduction).
+UI state and render logic. I wanted a similar experience for this rewrite, and
+was stoked to see Yew now has Hooks, by the name of [Function
+Components](https://yew.rs/docs/concepts/function-components/introduction).
 
 A function component is a modular UI element represented as a function. The
 function takes in parameters (called Props), evaluates any necessary business
@@ -55,8 +57,6 @@ The above code renders as: <Counter />. It's that easy to create an interactive
 component that stores state and responds to input. It's also trivial to compose
 them by just adding `<ComponentName />` to the return value of the parent
 component.
-
-TODO: show a more on-trivial component, perhaps blog index
 
 ## Single-Page Application (SPA) Routing
 
@@ -304,7 +304,141 @@ fn blog() -> Html {
 }
 ```
 
+All of these features can be previewed in the [mdx macro unit
+tests](https://github.com/kcking/yew/blob/mdx/packages/yew-macro/tests/mdx_macro_test.rs).
+
 ## Bazel
+
+_deep breath..._
+
+Alright, we've covered a lot already. Between SSR, wasm, and
+external Markdown files, our build is already more than a little _complicated_.
+
+When starting this project, I initially used [`trunk`](https://trunkrs.dev) to
+build the wasm. Then I used normal `cargo` to build the native server binary
+and `include!`-ed the compiled yew wasm to serve at runtime. I tied all of
+this together with a [bash script](https://github.com/kcking/gaia/blob/2e115398a17ca06c2c1a90ddcdb5255dc44e6865/watch.sh) and
+[`cargo-watch`](https://github.com/watchexec/cargo-watch) to automatically
+re-compile the server on every code change. Unfortunately, I ran into
+[issues](https://github.com/kcking/gaia/commit/2e115398a17ca06c2c1a90ddcdb5255dc44e6865#diff-30579e4e9d20f35567d5754061280981f9e104f63e2ce830ab733e694e5ee9c1)
+with `cargo-watch` not always recognizing when to re-compile that I never
+figured out how to completely fix. I also couldn't figure out a way to
+parallelize the building of the app and the server, and instead just built them
+sequentially. Things got even more complicated when incorporating TailwindCSS
+and other tooling we'll cover later in this post.
+
+Along comes [Bazel](https://bazel.build), Google's open-source version of their
+internal `blaze` build system. Bazel is a hermetic build system, where each
+build step (also called a rule) declares its dependencies, outputs, and how to
+build it. This explicitness allows bazel to know exactly what needs to be
+re-built and what can be parallelized.
+
+For the rest of this post, bazel will be the glue with which we tie everything
+together.
+
+## Bazel Rust Project Layout
+
+The [`rules_rust`](https://github.com/bazelbuild/rules_rust) project adds rust
+support to bazel, including support for crates.io and wasm_bindgen.
+
+The project is split into the core Yew application based in the root directory,
+and the web server in the `server/` directory. The root `BUILD` file defines the Yew app twice:
+
+- first as a library for our server to use in SSR
+- second as a binary to run on the web client in "hydration" mode
+
+```py
+# /BUILD
+rust_library(
+    name = "implfuture",
+    srcs = glob(
+        include = [
+            "src/**/*.rs",
+        ],
+        # exclude hydration entry-point
+        exclude = ["src/bin/**"],
+    ),
+    # include mdx files for include_mdx!()
+    compile_data = glob(["src/**/*.mdx"]),
+    edition = "2021",
+    # pulls crates from crates.io/crates_universe
+    deps = all_crate_deps(
+        normal = True,
+    ),
+)
+
+# hydration wasm
+rust_binary(
+    name = "app",
+    srcs = ["src/bin/app.rs"],
+    edition = "2021",
+    deps = all_crate_deps(
+        normal = True,
+    ) + [
+        # depends on core app logic
+        ":implfuture",
+        "@rules_rust//wasm_bindgen/3rdparty:wasm_bindgen",
+    ],
+)
+```
+
+We can then compile our client-side hydrating application code to wasm using the
+`rust_wasm_bindgen` rule from `rules_rust`:
+
+```py
+# /BUILD
+
+rust_wasm_bindgen(
+    name = "app_wasm",
+    target = "web",
+    wasm_file = ":app",
+)
+```
+
+Finally, our server `BUILD` file ties it all together:
+
+```py
+# /server/BUILD
+
+rust_binary(
+    name = "server",
+    srcs = glob(["src/**/*.rs"]),
+    # files served at runtime
+    data = [
+        "//:app_wasm",
+        "//:static_files",
+    ],
+    deps = all_crate_deps(
+        normal = True,
+    ) + [
+        # application code for SSR
+        "//:implfuture"
+    ],
+)
+```
+
+The `data` field tells bazel that the web server needs the app wasm code at
+runtime. Bazel uses this information to know it can parallelize compilation of
+the wasm code and the native code. Bazel also knows exactly what to recompile.
+For example, if we change a CSS static file, bazel knows that it does not need
+to recompile the server since CSS is just a runtime data dependency.
+
+With all of this set up, we can run a local development server with
+
+```bash
+$ bazel run //server
+iBazel: Starting...
+starting server on 127.0.0.1:8080
+```
+
+If we want things to automatically rebuild, all we need to do is use
+[`ibazel`](https://github.com/bazelbuild/bazel-watcher) instead of `bazel`
+
+```bash
+$ ibazel run //server
+iBazel: Starting...
+starting server on 127.0.0.1:8080
+```
 
 ## Tailwind
 
@@ -317,6 +451,12 @@ fn blog() -> Html {
 ### Brotli
 
 ## Deployment
+
+### bazel-zig-cc
+
+### Container Image
+
+### Serverless
 
 ## Wishlist
 

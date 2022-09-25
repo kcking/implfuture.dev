@@ -12,6 +12,7 @@ export default {
         "rust",
         "bash",
         "tsx",
+        "python", // for BUILD files and starlark
       ],
       plugins: [
         // "line-highlight",
