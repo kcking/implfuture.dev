@@ -2,10 +2,12 @@ mod post1;
 mod post2;
 mod syntaxhighlight;
 
+use std::borrow::Borrow;
+
 use time::macros::date;
 use yew::{
-    function_component, html, include_mdx, mdx, mdx_style, use_callback, use_effect, use_state,
-    Children, Html, Properties,
+    function_component, html, include_mdx, mdx, mdx_style, use_callback, use_state,
+    virtual_dom::VList, Children, Html, Properties,
 };
 use yew_router::prelude::Link;
 
@@ -16,11 +18,13 @@ macro_rules! blog_style {
         mdx_style!(
             h1: MyH1,
             h2: MyH2,
+            h3: MyH3,
             blockquote: MyBlockquote,
             pre: HighlightCode,
             p: MyP,
             li: MyLi,
             ul: MyUl,
+            code: MyCode,
         );
     };
 }
@@ -37,6 +41,7 @@ const HEADER_LINK_LEN: usize = 20;
 #[function_component]
 fn MyH1(c: &ChildProps) -> Html {
     let mut tag = String::new();
+    c.children.iter();
     for c in c.children.iter() {
         match c {
             yew::virtual_dom::VNode::VText(t) => {
@@ -79,6 +84,39 @@ fn MyH2(c: &ChildProps) -> Html {
 }
 
 #[function_component]
+fn MyH3(c: &ChildProps) -> Html {
+    let tag = children_to_slug(c.children.iter());
+    html! {
+      <a class="text-inherit" href={format!("#{tag}")}>
+        <h3 id={tag} class="text-xl py-3">
+          {c.children.clone()}
+        </h3>
+      </a>
+    }
+}
+
+fn children_to_slug(c: impl IntoIterator<Item = Html>) -> String {
+    let mut out = children_to_string(c);
+    out.truncate(HEADER_LINK_LEN);
+    out
+}
+
+fn children_to_string<H: Borrow<Html>>(c: impl IntoIterator<Item = H>) -> String {
+    let mut out = String::new();
+    for c in c.into_iter() {
+        match c.borrow() {
+            yew::virtual_dom::VNode::VText(t) => {
+                out += &t.text.to_string();
+            }
+            _ => (),
+        };
+    }
+    out = out.replace(" ", "-").to_lowercase();
+
+    out
+}
+
+#[function_component]
 fn MyPre(c: &ChildProps) -> Html {
     html! {
       <pre class="overflow-auto m-4 p-6 bg-gray-300/5 rounded">
@@ -105,9 +143,6 @@ fn MyP(c: &ChildProps) -> Html {
     }
 }
 
-//  ul: ({ children }) => <div className="px-4">{children}</div>,
-// li: ({ children }) => <p className="py-1"> - {children}</p>,
-
 #[function_component]
 fn MyUl(c: &ChildProps) -> Html {
     html! {
@@ -119,6 +154,15 @@ fn MyUl(c: &ChildProps) -> Html {
 fn MyLi(c: &ChildProps) -> Html {
     html! {
       <p class="py-1">{" - "}{c.children.clone()}</p>
+    }
+}
+
+#[function_component]
+fn MyCode(c: &ChildProps) -> Html {
+    html! {
+      <code class="bg-gray-300/40 dark:bg-gray-300/20 px-1 rounded">
+        {c.children.clone()}
+      </code>
     }
 }
 

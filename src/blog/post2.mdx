@@ -661,9 +661,118 @@ needs some tweaking 🙂.
 
 ## WASM Code-Size Optimization
 
-### `wasm-opt`
+One obstacle with compiling rust to wasm is that the resulting wasm file can
+be pretty large. As of writing this blog, the unoptimized wasm for this site is
+5.1MB. This is clearly way too big for a website. Even though SSR will give the
+user a contentful page immediately, all interactivity like `onclick`s and
+`use_effect`s is delayed until the app wasm fully loads and hydration runs.
+
+The rustwasm book has some great tips on optimizing [wasm code
+size](https://rustwasm.github.io/docs/book/game-of-life/code-size.html).
+
+### wasm-opt
+
+`wasm-opt` is a part of the Emscripten SDK and is included in its [bazel
+toolchain](https://github.com/emscripten-core/emsdk/blob/26a0dea0d3bbf616fa7f0a908e5b08aab406f7c4/bazel/emscripten_deps.bzl).
+`wasm-opt` optimizes wasm code for both performance and code-size. Using
+`wasm-opt -Os` reduced the app wasm size from 4.9MB to 1.3MB.
+
+Incorporating `wasm-opt` into bazel in a cross-platofrm way was a little tricky.
+The `emsdk` bazel toolchain exposes `wasm-opt` at different paths [depending on
+the
+platform](https://github.com/emscripten-core/emsdk/blob/26a0dea0d3bbf616fa7f0a908e5b08aab406f7c4/bazel/emscripten_deps.bzl#L117).
+This meant that a `genrule` would have to be aware of which platform it was
+running on in order to locate the correct `wasm-opt`. Instead, I wrote a custom [rule](https://bazel.build/extending/rules) that invokes `wasm-opt` using starlark:
+
+```py
+# /emsdk/emsdk.bzl
+
+# expects exactly one .wasm file and one output path
+def _wasmopt_impl(ctx):
+    tc = ctx.toolchains["//emsdk:toolchain_type"]
+    info = tc.emsdkinfo
+    wasm_srcs = [f for f in ctx.attr.src.files.to_list() if f.path.endswith(".wasm")]
+    if len(wasm_srcs) != 1:
+        fail("expected 1 wasm file, got %s" % wasm_srcs)
+    wasm_src = wasm_srcs[0]
+
+    ctx.actions.run(
+        inputs = [wasm_src],
+        outputs = [ctx.outputs.out],
+        executable = info.wasmopt,
+        arguments = ["-Os", wasm_src.path, "-o", ctx.outputs.out.path],
+    )
+```
+
+This rule uses the bazel [toolchain](https://bazel.build/extending/toolchains)
+construct to select the version of `emsdk` compatible with the host. I also
+defined `emsdk` toolchains, similar to how `rust` or `go` toolchains are defined:
+
+```py
+# /emsdk/emsdk.bzl
+
+def declare_toolchains(name):
+    for tc in TOOLCHAINS:
+        emsdk_toolchain(
+            name = "emsdk_{tc}".format(tc = tc),
+            linker_files = "@emscripten_bin_{tc}//:linker_files".format(tc = tc),
+        )
+        native.toolchain(
+            name = "emsdk_{tc}_toolchain".format(tc = tc),
+            toolchain = ":emsdk_{tc}".format(tc = tc),
+            exec_compatible_with = TOOLCHAINS[tc]["exec"],
+            toolchain_type = "//emsdk:toolchain_type",
+        )
+
+def register_toolchains():
+    native.register_toolchains(
+        *["//emsdk:emsdk_{tc}_toolchain".format(tc = tc) for tc in TOOLCHAINS]
+    )
+```
+
+Any bazel project then just needs to call `register_toolchains()` in its
+`WORKSPACE` file and the correct `emsdk` will be downloaded when the `wasmopt`
+rule is used.
 
 ### Brotli
+
+While `wasm-opt` brought us down from 4.9MB to 1.3MB, that's still way to big of
+an app size. The next option I looked at was compression. After experimenting
+with a flate, gzip, and brotli, I found that brotli achieved the smallest size.
+With both `wasm-opt -Os` and `brotli -9`, the wasm file came down to 331KB in
+total.
+
+Incorporating [brotli](https://github.com/google/brotli) into bazel was pretty
+simple since it's a Google project that already uses bazel for its build. First I added it to my `WORKSPACE`:
+
+```py
+# /WORKSPACE
+
+git_repository(
+    name = "brotli",
+    commit = "9801a2c5d6c67c467ffad676ac301379bb877fc3",  # 2022-05-12
+    remote = "https://github.com/google/brotli",
+)
+```
+
+Then I wrote a simple `genrule` to compress the output of `wasm-opt`:
+
+```py
+# /BUILD
+
+genrule(
+    name = "app_wasm_opt_br",
+    srcs = [":app_wasm_opt"],
+    outs = ["app_wasm_bg_opt.wasm.br"],
+    cmd = "./bazel-out/host/bin/external/brotli/brotli -9 $<",
+    tools = ["@brotli"],
+)
+```
+
+Referencing `@brotli` in the `tools` argument automatically compiles `brotli`
+for the host architecture. This way, I can be sure exactly which version of
+`brotli` is being used, and don't need to rely on any host having it installed
+beforehand.
 
 ## Deployment
 
@@ -673,10 +782,11 @@ needs some tweaking 🙂.
 
 ### Serverless
 
-## Wishlist
+## Wishlist / TODO
 
 Code-splitting
 inline rust in MDX with curly-braces
 hot-reload
 bazel remote cache
 web-server API
+make sure correct code version fetched by index.html

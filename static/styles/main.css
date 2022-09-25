@@ -36,6 +36,7 @@ a {
   html, body { 
     color: rgb(232, 230, 227);
     background-color: rgb(24, 26, 27);
+    color-scheme: dark;
   }
 
   a {
