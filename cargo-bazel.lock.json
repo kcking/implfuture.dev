@@ -1,5 +1,5 @@
 {
-  "checksum": "e321ff48a0cabcb47db9b997d4c6e702c247da2585acec2f58465f488153bc09",
+  "checksum": "f7d68e5d5d2222556a89da765cd8bd7bcf6ff2ad4806b29f4774d36a1cfbe15a",
   "crates": {
     "ahash 0.3.8": {
       "name": "ahash",
@@ -10453,7 +10453,7 @@
         "Git": {
           "remote": "https://github.com/kcking/yew",
           "commitish": {
-            "Rev": "66939e79a1f998c00c93a90fcad2402eb40ecf37"
+            "Branch": "mdx"
           },
           "strip_prefix": "packages/yew"
         }
@@ -10580,7 +10580,7 @@
         "Git": {
           "remote": "https://github.com/kcking/yew",
           "commitish": {
-            "Rev": "66939e79a1f998c00c93a90fcad2402eb40ecf37"
+            "Branch": "mdx"
           },
           "strip_prefix": "packages/yew-macro"
         }
@@ -10661,7 +10661,7 @@
         "Git": {
           "remote": "https://github.com/kcking/yew",
           "commitish": {
-            "Rev": "66939e79a1f998c00c93a90fcad2402eb40ecf37"
+            "Branch": "mdx"
           },
           "strip_prefix": "packages/yew-router"
         }
@@ -10743,7 +10743,7 @@
         "Git": {
           "remote": "https://github.com/kcking/yew",
           "commitish": {
-            "Rev": "66939e79a1f998c00c93a90fcad2402eb40ecf37"
+            "Branch": "mdx"
           },
           "strip_prefix": "packages/yew-router-macro"
         }

@@ -27,7 +27,7 @@ web-sys = "0.3.58"
 [patch.'crates-io']
 # yew = { path = "../yew/packages/yew" }
 # yew-router = { path = "../yew/packages/yew-router" }
-yew = { git = "https://github.com/kcking/yew", rev = "66939e79a1f998c00c93a90fcad2402eb40ecf37" }
-yew-router = { git = "https://github.com/kcking/yew", rev = "66939e79a1f998c00c93a90fcad2402eb40ecf37" }
+yew = { git = "https://github.com/kcking/yew", branch = "mdx" }
+yew-router = { git = "https://github.com/kcking/yew", branch = "mdx" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
