@@ -22,9 +22,3 @@ yew-router = { version = "0.16.0" }
 futures = "0.3.21"
 lazy_static = "1.4.0"
 lambda-web = { version = "0.2.0", features = ["hyper"] }
-
-[patch.'crates-io']
-# yew = { path = "../yew/packages/yew" }
-# yew-router = { path = "../yew/packages/yew-router" }
-yew = { git = "https://github.com/kcking/yew", branch = "mdx" }
-yew-router = { git = "https://github.com/kcking/yew", branch = "mdx" }
