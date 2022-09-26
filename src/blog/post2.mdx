@@ -680,7 +680,7 @@ toolchain](https://github.com/emscripten-core/emsdk/blob/26a0dea0d3bbf616fa7f0a9
 `wasm-opt` optimizes wasm code for both performance and code-size. Using
 `wasm-opt -Os` reduced the app wasm size from 4.9MB to 1.3MB.
 
-Incorporating `wasm-opt` into bazel in a cross-platofrm way was a little tricky.
+Incorporating `wasm-opt` into bazel in a cross-platform way was a little tricky.
 The `emsdk` bazel toolchain exposes `wasm-opt` at different paths [depending on
 the
 platform](https://github.com/emscripten-core/emsdk/blob/26a0dea0d3bbf616fa7f0a908e5b08aab406f7c4/bazel/emscripten_deps.bzl#L117).
