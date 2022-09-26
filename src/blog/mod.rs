@@ -215,7 +215,7 @@ const BLOG_POSTS: &[(Metadata, &dyn Fn(&Metadata) -> Html)] = &[
             date: date!(2022 - 9 - 3),
             slug: "rewriting-the-modern-web-in-rust",
             title: "Rewriting the Modern Web in Rust",
-            subtitle: "ssr, mdx, hooks",
+            subtitle: "Rust, spa, ssr, mdx, yew hooks, bazel",
             published: true,
         },
         &post2::post_2,

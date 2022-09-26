@@ -8,8 +8,9 @@ pub fn post(_md: &Metadata) -> Html {
     mdx! {r#"
 # Building a Blog like it's 2022 ✨
 
-> This is a work-in-progress post about how I built this site. You can check out the source code on
-> [GitHub](https://github.com/kcking/implfuture.dev).
+> This is a post about how I built the first version of this site. You can check
+> out the source code on
+> [GitHub](https://github.com/kcking/implfuture.dev/tree/0c09f36d00bed82beee1fde37856aa6857d86240).
 
 What was I looking for in a blog? Three things. It should be easy to:
 
