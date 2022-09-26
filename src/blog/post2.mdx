@@ -869,11 +869,33 @@ container_image(
 
 ### Serverless
 
-## Wishlist / TODO
+Infrastructure-wise, all I really needed was custom domain support, TLS
+termination, and some execution environment. The first thing that came to mind
+was something like AWS ECS (Elastic Container Service), but keeping a container
+running all the time for just a personal website felt wasteful.
 
-Code-splitting
-inline rust in MDX with curly-braces
-hot-reload
-bazel remote cache
-web-server API
-make sure correct code version fetched by index.html
+Instead, I settled on AWS Lambda, with a TLS certificate stored in ACM, and API
+Gateway as a frontend. This setup provided unlimited auto-scaling, and didn't
+even require setting up my own load balancer (load balancers are usually the
+most expensive part of deploying a small project).
+
+All I needed was for my web server to support lambda instead of expecting
+incoming TCP traffic. Luckily, there's an awesome
+[`lambda-web`](https://github.com/hanabu/lambda-web) crate that adapts common
+rust web servers like Axum to the lambda runtime API. All I had to add to my web server was:
+
+```rust
+// /server/src/main.rs
+
+if lambda_web::is_running_on_lambda() {
+    lambda_web::run_hyper_on_lambda(route_service)
+        .await
+        .map_err(...)?;
+} else {
+    //  tcp listen code...
+}
+```
+
+With `lambda-web`, the same axum handlers, including static file serving and
+SSR, work for both my local development server _and_ the production lambda
+runtime.
