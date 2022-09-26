@@ -212,6 +212,16 @@ pub struct Metadata {
 const BLOG_POSTS: &[(Metadata, &dyn Fn(&Metadata) -> Html)] = &[
     (
         Metadata {
+            date: date!(2022 - 9 - 3),
+            slug: "rewriting-the-modern-web-in-rust",
+            title: "Rewriting the Modern Web in Rust",
+            subtitle: "ssr, mdx, hooks",
+            published: true,
+        },
+        &post2::post_2,
+    ),
+    (
+        Metadata {
             date: date!(2022 - 2 - 15),
             slug: "building-a-blog-like-its-2022",
             title: "Building a Blog Like it's 2022 ✨",
@@ -219,16 +229,6 @@ const BLOG_POSTS: &[(Metadata, &dyn Fn(&Metadata) -> Html)] = &[
             published: true,
         },
         &post1::post,
-    ),
-    (
-        Metadata {
-            date: date!(2022 - 9 - 3),
-            slug: "rewriting-modern-web-in-rust",
-            title: "Rewriting Modern Web in Rust",
-            subtitle: "ssr, mdx, hooks",
-            published: false,
-        },
-        &post2::post_2,
     ),
 ];
 
