@@ -9,7 +9,7 @@ My personal website, hosted at [implfuture.dev](https://implfuture.dev).
 ibazel run //server --//:show_drafts
 
 # build and deploy container image
-bazel run -c opt //server:push-amd64
+bazel run -c opt //server:push-amd64 --stamp
 ```
 
 In order to push to ECR, make sure `~/.docker/config.json` contains:

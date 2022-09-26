@@ -1,4 +1,4 @@
-# Zero to SPA in Full-Stack Rust
+# Rewriting the Modern Web in Rust
 
 > Building a modern web app with Rust, Bazel, Yew and Axum.
 
@@ -264,9 +264,9 @@ mdx! {r#"
 "#}
 ```
 
-I also added support for replacing all instances of an element with a custom Yew
-component. For example, all header tags on my blog are labelled with an `id`
-based on their text and are turned into clickable links.
+I also added support for replacing all instances of a markdown element with a
+custom Yew component. For example, all header tags on my blog are labelled with
+an `id` based on their text and are turned into clickable links.
 
 ```rust
 mdx_style!(
@@ -806,8 +806,9 @@ Work"](https://actually.fyi/posts/zig-makes-rust-cross-compilation-just-work/).
 These posts showcase using `zig` as a drop-in replacement for a C compiler and
 linker with great success.
 
-Luckily, the [`bazel-zig-cc`](https://git.sr.ht/~motiejus/bazel-zig-cc) project provides bazel toolchain abstractions for
-the `zig` C/C++ toolchain. After recommending [a small
+Luckily, the [`bazel-zig-cc`](https://git.sr.ht/~motiejus/bazel-zig-cc) project
+provides bazel toolchain abstractions for the `zig` C/C++ toolchain. After
+recommending [a small
 fix](https://git.sr.ht/~motiejus/bazel-zig-cc/commit/79674a1d966b5c196a6f729ac7423223dc05cf83)
 to address how `cargo` invokes `zig` as a linker, all I had to do was register
 the linux `zig` toolchains in my `WORKSPACE`.
@@ -899,3 +900,25 @@ if lambda_web::is_running_on_lambda() {
 With `lambda-web`, the same axum handlers, including static file serving and
 SSR, work for both my local development server _and_ the production lambda
 runtime.
+
+# Wrapping Up
+
+Thank you for joining me on this rust + bazel journey! I was able to push
+full-stack rust much further than I thought I would be able to. I converged on a
+relatively convenient developer and deployment experience, building on the
+shoulders of giants like bazel, rules_rust, and zig.
+
+Don't get me wrong, there's still quite a few improvements I would like to see
+in this project / the rust web ecosystem in general. To name a few:
+
+- code splitting (right now the entire application wasm is loaded no matter which page the user is on)
+- hot-reloading of app wasm so I can see updates without refreshing the page
+- bazel remote build cache to speed up [github
+  worker](https://github.com/kcking/implfuture.dev/actions) builds (currently
+  takes 20-30m on a free worker)
+- blog table of contents (could likely be implemented in a component that scans
+  the blog DOM after first render)
+- compiling the server to `wasi` architecture
+
+I hope you learned a bit about rust, wasm, or bazel along the way! See you next
+post!
