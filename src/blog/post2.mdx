@@ -133,8 +133,8 @@ is Server-Side Rendering. Here is the typical SSR flow:
 1. The server receives the initial HTTP request from the client
 1. The server runs its own copy of the application code on the path of the request
 1. The resulting DOM is serialized to a string and injected into the initial HTML response
-1. The client immediately renders the initial HTML page and download the application code
-1. The client starts the local application which attaches to the initial DOM nodes (also called hydration)
+1. The client immediately renders the initial HTML page and downloads the application code
+1. The client starts the local application, attaching to the initial DOM nodes (also called hydration)
 
 Luckily, Yew has [implemented
 both](https://yew.rs/docs/next/advanced-topics/server-side-rendering) the
@@ -145,7 +145,7 @@ Let's see how we can make this all work with [Axum](https://docs.rs/axum).
 
 The basic logic we need to handle an incoming request is:
 
-1. If the path matches a path in our Yew app, serve `index.html` with first
+1. If the path matches a path in our Yew app, serve `index.html` with the first
    render of that page injected into it.
 2. Otherwise, try serving a static file from `static/`.
 
@@ -736,9 +736,9 @@ rule is used.
 
 ### Brotli
 
-While `wasm-opt` brought us down from 4.9MB to 1.3MB, that's still way to big of
-an app size. The next option I looked at was compression. After experimenting
-with a flate, gzip, and brotli, I found that brotli achieved the smallest size.
+While `wasm-opt` brought the app down from 4.9MB to 1.3MB, that's still way too big.
+The next option I looked at was compression. After experimenting
+with flate, gzip, and brotli, I found that brotli achieved the smallest size.
 With both `wasm-opt -Os` and `brotli -9`, the wasm file came down to 331KB in
 total.
 
