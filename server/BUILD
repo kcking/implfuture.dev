@@ -5,7 +5,7 @@ load(
     "container_image",
     "container_push",
 )
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 
 rust_binary(
     name = "server",
@@ -76,6 +76,7 @@ pkg_tar(
     srcs = [":opt"],
     include_runfiles = True,
     package_dir = "/app",
+    stamp = 1,
     # keeps relative path consistent for static files in both dev and release
     strip_prefix = "/server",
 )
@@ -86,6 +87,7 @@ container_image(
     # References container_pull from WORKSPACE (above)
     base = "@cc_base//image",
     cmd = ["/app/opt"],
+    enable_mtime_preservation = True,
     env = {
         "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
     },
@@ -99,6 +101,7 @@ container_image(
     # References container_pull from WORKSPACE (above)
     base = "@cc_base//image",
     cmd = ["/app/opt"],
+    enable_mtime_preservation = True,
     env = {
         "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
     },
