@@ -33,13 +33,15 @@
       src="https://www.googletagmanager.com/gtag/js?id=G-68VJX4ZBZ7"
     ></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
+      if (document.location.hostname.search("implfuture.dev") !== -1) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+          dataLayer.push(arguments);
+        }
+        gtag("js", new Date());
 
-      gtag("config", "G-68VJX4ZBZ7");
+        gtag("config", "G-68VJX4ZBZ7");
+      }
     </script>
 
     <script>
