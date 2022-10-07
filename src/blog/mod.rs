@@ -1,5 +1,6 @@
 mod post1;
 mod post2;
+mod post3;
 mod syntaxhighlight;
 
 use std::borrow::Borrow;
@@ -210,6 +211,16 @@ pub struct Metadata {
 }
 
 const BLOG_POSTS: &[(Metadata, &dyn Fn(&Metadata) -> Html)] = &[
+    (
+        Metadata {
+            date: date!(2022 - 10 - 7),
+            slug: "using-rust-docs-effectively",
+            title: "Using Rust Docs Effectively",
+            subtitle: "docs.rs, cargo doc tips",
+            published: false,
+        },
+        &post3::post_3,
+    ),
     (
         Metadata {
             date: date!(2022 - 10 - 1),
