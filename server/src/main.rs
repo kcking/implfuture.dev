@@ -5,7 +5,7 @@ use std::marker::PhantomData;
 use anyhow::Result;
 use axum::body::{Body, BoxBody};
 use axum::extract::Query;
-use axum::http::{Request, Response, StatusCode};
+use axum::http::{header, HeaderMap, HeaderValue, Request, Response, StatusCode};
 use axum::response::{Html, IntoResponse};
 use axum::routing::{get_service, MethodRouter};
 use axum::Extension;
@@ -50,7 +50,7 @@ async fn index(
     Extension(index_html_s): Extension<String>,
     url: Request<Body>,
     Query(queries): Query<HashMap<String, String>>,
-) -> Html<String> {
+) -> impl IntoResponse {
     let out = LOCAL_POOL
         .spawn_pinned(|| async move {
             let props = ServerAppProps {
@@ -68,7 +68,10 @@ async fn index(
     let html = index_html_s
         .replace("<body>", &format!("<body>{}", out))
         .replace("</head>", &format!("{}</head>", html_wasm_init_head()));
-    Html(html)
+    (
+        HeaderMap::from_iter([(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"))]),
+        Html(html),
+    )
 }
 
 async fn handle_error(e: impl std::fmt::Debug) -> impl IntoResponse {
