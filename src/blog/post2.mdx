@@ -116,9 +116,9 @@ fn switch(route: Route) -> Html {
 
 Since `Route` is a rust enum, I am forced to implement every possible route. If
 I were to add another route to the enum, the compiler would error until I also
-implement the render logic in this `switch` function. The `BlogIndex` variant
+implement the render logic in this `switch` function. The `BlogPost` variant
 takes advantage of the arbitrary structure of rust enums -- I know that if
-`route` is `BlogIndex`, there is also a valid `slug: String` field that was
+`route` is `BlogPost`, there is also a valid `slug: String` field that was
 parsed by `yew-router`.
 
 ## Server-Side Rendering (SSR)
