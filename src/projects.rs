@@ -51,9 +51,9 @@ pub fn Projects() -> Html {
         <Project name="Bevy OpenXR" image="url(/img/bevy.svg)" description={html!{
             <>
             {"Unity and Unreal Engine are practically the only options when
-            developing VR games and experiences. I am actively bringing OpenXR
-            support to the "}<a href="https://bevyengine.org">{"Bevy game
-            engine"}</a>{" in order to spread the benefits of rust to XR
+            developing VR games and experiences. I am actively bringing "} <a href="https://github.com/kcking/bevy">{"OpenXR
+            support"}</a>{" to the "}<a href="https://bevyengine.org">{"Bevy
+            game engine"}</a>{" in order to spread the benefits of rust to XR
             development. "}
             </>
         }} />
