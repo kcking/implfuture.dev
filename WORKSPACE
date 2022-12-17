@@ -32,6 +32,7 @@ crates_repository(
     name = "crate_index",
     cargo_lockfile = "//:Cargo.lock",
     generator_sha256s = {"aarch64-apple-darwin": "77e55540c26bf180b3f6bb5523f24aeef02d4c1b4525426cf13c547aa9698c75"},
+    isolated = False,
     lockfile = "//:cargo-bazel.lock.json",
     manifests = [
         "//:Cargo.toml",
@@ -135,13 +136,15 @@ git_repository(
 # in-bazel rules_pkg is deprecated, this is the new repo
 http_archive(
     name = "rules_pkg",
+    sha256 = "8a298e832762eda1830597d64fe7db58178aa84cd5926d76d5b744d6558941c2",
     urls = [
         "https://mirror.bazel.build/github.com/bazelbuild/rules_pkg/releases/download/0.7.0/rules_pkg-0.7.0.tar.gz",
         "https://github.com/bazelbuild/rules_pkg/releases/download/0.7.0/rules_pkg-0.7.0.tar.gz",
     ],
-    sha256 = "8a298e832762eda1830597d64fe7db58178aa84cd5926d76d5b744d6558941c2",
 )
+
 load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
+
 rules_pkg_dependencies()
 
 # go required for docker-less container operations
