@@ -128,6 +128,6 @@ genrule(
     name = "app_wasm_opt_br",
     srcs = [":app_wasm_opt"],
     outs = ["app_wasm_bg_opt.wasm.br"],
-    cmd = "./bazel-out/host/bin/external/brotli/brotli -9 $<",
+    cmd = "$(execpath @brotli) -9 $<",
     tools = ["@brotli"],
 )
