@@ -70,6 +70,7 @@ fn Navbar() -> Html {
                     </button>
                 </Link<Route>>
                 <a class="p-4 text-3xl" href="https://twitter.com/4kevinking">{"Contact"}</a>
+                <a class="p-4 text-3xl" href="https://github.com/kcking/implfuture.dev">{"GitHub"}</a>
             </div>
         </div>
     }
