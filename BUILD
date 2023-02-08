@@ -105,8 +105,8 @@ genrule(
     name = "tailwind",
     srcs = glob(["src/**/*.rs"]) + ["tailwind.config.js"],
     outs = ["static/tailwind.css"],
-    cmd = "node bazel-out/host/bin/external/root_npm/node_modules/tailwindcss/lib/cli.js --output=$(OUTS)",
-    tools = ["@root_npm//tailwindcss"],
+    cmd = "$(execpath @root_npm//tailwindcss/bin:tailwindcss) --output=$(OUTS)",
+    tools = ["@root_npm//tailwindcss/bin:tailwindcss"],
     visibility = ["//:__pkg__"],
 )
 
