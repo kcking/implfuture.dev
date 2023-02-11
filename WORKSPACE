@@ -1,11 +1,11 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-RULES_RUST_VERSION = "0.10.0"
+RULES_RUST_VERSION = "0.18.0"
 
 http_archive(
     name = "rules_rust",
-    sha256 = "0cc7e6b39e492710b819e00d48f2210ae626b717a3ab96e048c43ab57e61d204",
+    sha256 = "2466e5b2514772e84f9009010797b9cd4b51c1e6445bbd5b5e24848d90e6fb2e",
     urls = [
         "https://mirror.bazel.build/github.com/bazelbuild/rules_rust/releases/download/{RULES_RUST_VERSION}/rules_rust-v{RULES_RUST_VERSION}.tar.gz".format(RULES_RUST_VERSION = RULES_RUST_VERSION),
         "https://github.com/bazelbuild/rules_rust/releases/download/{RULES_RUST_VERSION}/rules_rust-v{RULES_RUST_VERSION}.tar.gz".format(RULES_RUST_VERSION = RULES_RUST_VERSION),
