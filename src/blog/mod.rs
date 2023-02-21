@@ -1,4 +1,5 @@
 mod p04_pytorch;
+mod p05_pytorch_p2;
 mod post1;
 mod post2;
 mod post3;
@@ -214,11 +215,21 @@ pub struct Metadata {
 const BLOG_POSTS: &[(Metadata, &dyn Fn(&Metadata) -> Html)] = &[
     (
         Metadata {
-            date: date!(2023 - 2 - 19),
-            slug: "learning-pytorch-with-rust",
-            title: "PyTorch + Rust",
-            subtitle: "",
+            date: date!(2023 - 2 - 20),
+            slug: "nanogpt-rust-part-2",
+            title: "nanoGPT + Rust :: Part 2",
+            subtitle: "Mixing Python Notebooks + Rust",
             published: false,
+        },
+        &p05_pytorch_p2::post_5,
+    ),
+    (
+        Metadata {
+            date: date!(2023 - 2 - 19),
+            slug: "nanogpt-rust-part-1",
+            title: "nanoGPT + Rust :: Part 1",
+            subtitle: "Mixing Python Notebooks + Rust",
+            published: true,
         },
         &p04_pytorch::post_4,
     ),

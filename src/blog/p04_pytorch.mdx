@@ -1,6 +1,6 @@
-# nanoGPT + Rust -- Part 1
+# nanoGPT + Rust :: Part 1
 
-> Mixing PyTorch + Python Notebooks + Rust
+> Mixing Python Notebooks + Rust
 
 I recently followed Andrej Karpathy's [Let's build GPT: from scratch, in code,
 spelled out](https://www.youtube.com/watch?v=kCc8FmEb1nY), implementing a
@@ -8,13 +8,17 @@ simplified GPT in Python. The video is a fantastic learning resource. I
 recommend everyone go through it themselves to understand how transformers work.
 
 Out of curiousity, I set up a hybrid Rust + PyTorch development environment and
-re-implemented nanoGPT in Rust using the [PyTorch Rust
-bindings](https://github.com/LaurentMazare/tch-rs). This post will walk through
-how I did this so you can add Rust to your LLM development as well!
+started re-implementing nanoGPT in Rust using the [PyTorch Rust
+bindings](https://github.com/LaurentMazare/tch-rs).
+
+This post is the first of a series that will walk through this process. In this
+post, we'll cover integrating Rust into Python and Notebooks. We'll use Rust to
+optimize a (simple) Python text pre-processing function.
 
 # Starting point: `nanogpt.py`
 
-First, let's get our initial Python environment set up. Starting from a fresh [`conda`](https://conda.io) environment:
+First, let's get our initial Python environment set up. Starting from a fresh
+[`conda`](https://conda.io) environment:
 
 ```bash
 conda create --name nanogpt-rs
@@ -41,7 +45,7 @@ Quite a few improvements have been [added
 upstream](https://github.com/karpathy/nanoGPT/commits/master) since.
 
 Make sure to select your new environment in VSCode for running
-Python Notebook cells. The first cell in `nanogpt.ipynb` sould plot the count of each
+Python Notebook cells. The first cell in `nanogpt.ipynb` should plot the count of each
 character in the TinyShakespeare dataset. Even when writing a model in Rust, I
 find it useful to have a Python Notebook open for experimentation and data
 analysis.
@@ -50,7 +54,7 @@ analysis.
 
 Processing data is one of the biggest wins for using Rust in an LLM environment.
 PyTorch `Tensor` operations are already optimized, backed by C++, and able to
-run on GPUs. But bata processing code is generally bespoke Python, which can be
+run on GPUs. But data processing code is generally bespoke Python, which can be
 slow and error prone.
 
 Let's set up a Python module backed by Rust that we can use to pre-process our
@@ -59,7 +63,7 @@ TinyShakespeare dataset.
 ## Using Maturin
 
 The maturin starter project is immediately ready to be called from Python.
-Whenever we make a change to the Rust code, just run `maturin develop` to build
+Whenever we make a change to the Rust code, we just run `maturin develop` to build
 and install the new module in the current environment.
 
 The `nanogpt_rs` module can now be imported into `.py`/`.ipynb` files:
@@ -70,7 +74,11 @@ import nanogpt_rs
 print(nanogpt_rs.sum_as_string(1, 2))
 ```
 
-We can automatically re-run `maturin develop` using [`cargo-watch`](https://github.com/watchexec/cargo-watch):
+> NOTE: You will need to restart your ipynb kernel in VSCode to pick up any
+> changes to local Rust modules.
+
+We can also automatically re-run `maturin develop` using
+[`cargo-watch`](https://github.com/watchexec/cargo-watch):
 
 ```bash
 cargo install cargo-watch
@@ -91,7 +99,8 @@ fn unique_characters(s: &str) -> HashSet<char> {
 }
 ```
 
-Now we can compare the two implementations in our Notebook:
+Now we can compare the two implementations in our Notebook using the `timeit`
+module:
 
 ```py
 import nanogpt
@@ -111,7 +120,7 @@ print(f"python: {py_time/iters:.4f}s/iter, rust: {rs_time/iters:.4f}s/iter")
 which outputs
 
 ```bash
-python: 0.0079, rust: 0.2327
+python: 0.0079s/iter, rust: 0.2327s/iter
 ```
 
 whoa, wait a second... the Rust implementation is 30x slower! It turns out
@@ -161,6 +170,7 @@ struct CharHasher {
 
 impl Hasher for CharHasher {
     fn write(&mut self, bytes: &[u8]) {
+        //  `char`s are fixed-width 4 bytes in Rust.
         if bytes.len() != 4 {
             return;
         }
@@ -193,7 +203,7 @@ fn unique_characters(s: &str) -> HashSet<char, CharHasher> {
 }
 ```
 
-> Note that this hash function only works for `char`s and relies on the
+> NOTE: This hash function only works for `char`s and relies on the
 > implementation details of `std::collections::HashMap`. Specifically, the Hash
 > implementation for `char` writes its bytes in native-endian. It could be made
 > more generic with a little extra logic like tracking how many bytes have been
@@ -203,10 +213,10 @@ With our custom hash function, the new timings are `python: 0.0069s/iter, rust:
 0.0019s/iter` -- Rust is now more than 3.5x faster!
 
 We could potentially push further and use `SmallVec` (a stack-allocated `Vec`),
-avoiding a `HashSet` altogether. I personally liked that this solution kept all
-of the ergonomics of `HashSet`. With larger datasets, we can also start to
-consider streaming using asnyc I/O and parallel processing using
-[`rayon`](https://github.com/rayon-rs/rayon).
+avoiding a `HashSet` altogether. I personally liked the ` Hasher`` solution kept all
+of the ergonomics of  `HashSet`, but feel free to try it! With larger datasets,
+we can also start to consider streaming using asnyc I/O and parallel processing
+using [`rayon`](https://github.com/rayon-rs/rayon).
 
 ### Adding Python Types
 
@@ -225,24 +235,15 @@ def unique_characters(s: str) -> set[str]: ...
 ```
 
 We'll now get Python type errors if we try to pass anything besides a `str` to
-`unique_characters` ✨. (I had to reload my VSCode window for it to start picking
-up the new typings).
+`unique_characters` ✨.
 
-## Define nn.Module in rust
+> I had to reload my VSCode window for it to start picking up the new typings.
 
-### Install correct pytorch and tch crate
+# Wrapping Up
 
-### Add env vars
+That's it for Part 1 of this series! You now have the tools to go forth and
+replace critical pieces of Python with high-performance Rust. Hopefully you
+learned something along the way! All of the code for this post can be found in
+this [GitHub Repo](https://github.com/kcking/nanogpt-rs).
 
-## Use ipynb for visualization
-
-## Thoughts
-
-- rust prevents some errors like forgetting to return a value from Module.forward
-- future work: expose tch types as Pyo3 objects, generate Python typings
-
-## TensorExt / ModuleExt traits
-
-- fill in common default params
-
-### TODO: Parallelism
+Stay tuned for my next post on writing PyTorch `Module`s (Neural Network Layers) in Rust!
