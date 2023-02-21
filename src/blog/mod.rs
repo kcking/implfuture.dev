@@ -1,8 +1,8 @@
+mod p04_pytorch;
 mod post1;
 mod post2;
 mod post3;
 mod syntaxhighlight;
-mod p04_pytorch;
 
 use std::borrow::Borrow;
 
@@ -54,11 +54,11 @@ fn MyH1(c: &ChildProps) -> Html {
     tag = tag.replace(" ", "-").to_lowercase();
     tag.truncate(HEADER_LINK_LEN);
     html! {
-      <a class="text-inherit" href={format!("#{tag}")}>
-        <h1 id={tag} class="text-4xl py-4">
+      <h1 id={tag.clone()} class="text-4xl pt-10 pb-6">
+        <a class="text-inherit" href={format!("#{tag}")}>
           {c.children.clone()}
-        </h1>
-      </a>
+        </a>
+      </h1>
     }
 }
 
@@ -76,11 +76,11 @@ fn MyH2(c: &ChildProps) -> Html {
     tag = tag.replace(" ", "-").to_lowercase();
     tag.truncate(HEADER_LINK_LEN);
     html! {
-      <a class="text-inherit" href={format!("#{tag}")}>
-        <h2 id={tag} class="text-2xl py-4">
+      <h2 id={tag.clone()} class="text-2xl pt-8 pb-4">
+        <a class="text-inherit" href={format!("#{tag}")}>
           {c.children.clone()}
-        </h2>
-      </a>
+        </a>
+      </h2>
     }
 }
 
@@ -88,11 +88,11 @@ fn MyH2(c: &ChildProps) -> Html {
 fn MyH3(c: &ChildProps) -> Html {
     let tag = children_to_slug(c.children.iter());
     html! {
-      <a class="text-inherit" href={format!("#{tag}")}>
-        <h3 id={tag} class="text-xl py-3">
+      <h3 id={tag.clone()} class="text-xl pt-6 pb-2">
+        <a class="text-inherit" href={format!("#{tag}")}>
           {c.children.clone()}
-        </h3>
-      </a>
+        </a>
+      </h3>
     }
 }
 

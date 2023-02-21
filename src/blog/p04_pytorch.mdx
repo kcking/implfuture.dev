@@ -1,4 +1,4 @@
-# nanoGPT + Rust
+# nanoGPT + Rust -- Part 1
 
 > Mixing PyTorch + Python Notebooks + Rust
 
@@ -161,12 +161,13 @@ struct CharHasher {
 
 impl Hasher for CharHasher {
     fn write(&mut self, bytes: &[u8]) {
-        //  `char` in Rust is fixed-width with 4 bytes.
         if bytes.len() != 4 {
             return;
         }
-        self.c =
-            char::from_u32(u32::from_le_bytes(bytes.try_into().unwrap_or([0; 4]))).unwrap_or('a');
+        //  Gracefully fall-back to `0`
+        let i = u32::from_ne_bytes(bytes.try_into().unwrap_or([0; 4]));
+        //  Gracefully fall-back to 'a'
+        self.c = char::from_u32(i).unwrap_or('a');
     }
 
     fn finish(&self) -> u64 {
@@ -193,8 +194,9 @@ fn unique_characters(s: &str) -> HashSet<char, CharHasher> {
 ```
 
 > Note that this hash function only works for `char`s and relies on the
-> implementation details of `std::collections::HashMap`. It could be made more
-> generic with a little extra logic like tracking how many bytes have been
+> implementation details of `std::collections::HashMap`. Specifically, the Hash
+> implementation for `char` writes its bytes in native-endian. It could be made
+> more generic with a little extra logic like tracking how many bytes have been
 > written so far.
 
 With our custom hash function, the new timings are `python: 0.0069s/iter, rust:
@@ -202,9 +204,29 @@ With our custom hash function, the new timings are `python: 0.0069s/iter, rust:
 
 We could potentially push further and use `SmallVec` (a stack-allocated `Vec`),
 avoiding a `HashSet` altogether. I personally liked that this solution kept all
-of the ergonomics of `HashSet`.
+of the ergonomics of `HashSet`. With larger datasets, we can also start to
+consider streaming using asnyc I/O and parallel processing using
+[`rayon`](https://github.com/rayon-rs/rayon).
 
-### Add Types :sparkles:
+### Adding Python Types
+
+Rust gives us a great type system to work with, but as currently configured, our
+Python code cannot take advantage of these types. Ideally `pyo3` would generate
+Python type hints based on our Rust code, and this has been a [long-standing
+request](https://github.com/PyO3/pyo3/issues/510).
+
+According to the [`pyo3`
+guide](https://pyo3.rs/v0.17.3/python_typing_hints#pytyped-requirement), the
+easiest way to add Python types is to manually add them in a `.pyi` file.
+
+```py
+# python/nanogpt_rs/nanogpt_rs.pyi
+def unique_characters(s: str) -> set[str]: ...
+```
+
+We'll now get Python type errors if we try to pass anything besides a `str` to
+`unique_characters` ✨. (I had to reload my VSCode window for it to start picking
+up the new typings).
 
 ## Define nn.Module in rust
 

@@ -1,0 +1,9 @@
+{
+  "[mdx]": {
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "other": "off",
+      "strings": "off"
+    }
+  }
+}
