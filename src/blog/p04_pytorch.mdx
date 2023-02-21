@@ -7,7 +7,7 @@ spelled out](https://www.youtube.com/watch?v=kCc8FmEb1nY), implementing a
 simplified GPT in Python. The video is a fantastic learning resource. I
 recommend everyone go through it themselves to understand how transformers work.
 
-Out of curiousity, I set up a hybrid Rust + PyTorch development environment and
+Out of curiosity, I set up a hybrid Rust + PyTorch development environment and
 started re-implementing nanoGPT in Rust using the [PyTorch Rust
 bindings](https://github.com/LaurentMazare/tch-rs).
 
@@ -215,7 +215,7 @@ With our custom hash function, the new timings are `python: 0.0069s/iter, rust:
 We could potentially push further and use `SmallVec` (a stack-allocated `Vec`),
 avoiding a `HashSet` altogether. I personally liked the ` Hasher`` solution kept all
 of the ergonomics of  `HashSet`, but feel free to try it! With larger datasets,
-we can also start to consider streaming using asnyc I/O and parallel processing
+we can also start to consider streaming using async I/O and parallel processing
 using [`rayon`](https://github.com/rayon-rs/rayon).
 
 ### Adding Python Types

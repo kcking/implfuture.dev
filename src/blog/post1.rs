@@ -106,7 +106,7 @@ type Meta = {
 };
 ```
 
-The `import(..)` statement in `blog.tsx` compiles the mdx file into a javscript
+The `import(..)` statement in `blog.tsx` compiles the mdx file into a javascript
 module that exposes this `meta` object. We can then sort the posts by descending
 date and format them into clickable rows just like we would for any other list
 data rendered in React.
@@ -133,7 +133,7 @@ local dev environment. _Yes I know they are visible in the public repo, think of
 ## Styling
 
 MDX by default leaves all of the markdown elements unstyled. However, each type
-of markdown element is rendered as the analagous HTML element. For example, `#`
+of markdown element is rendered as the analogous HTML element. For example, `#`
 maps to `h1`, `##` to `h2`, and `- ` to `li`. One way to style these elements is
 by writing css for each of the corresponding dom elements. However, I am very
 bought-in to using Tailwind. I also needed to set more than just styles, for
