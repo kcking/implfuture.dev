@@ -58,7 +58,7 @@ fn Navbar() -> Html {
             <h1 class="font-display text-6xl p-10">
                 <Link<Route> to={Route::Home}><div class="p-4">{"impl Future {}"}</div></Link<Route>>
             </h1>
-            <div class="flex items-center">
+            <div class="flex items-center flex-wrap">
                 <Link<Route> classes="p-4 text-3xl  " to={Route::BlogIndex}>
                     <button >
                         {"Blog"}
