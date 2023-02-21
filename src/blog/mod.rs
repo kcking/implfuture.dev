@@ -2,6 +2,7 @@ mod post1;
 mod post2;
 mod post3;
 mod syntaxhighlight;
+mod p04_pytorch;
 
 use std::borrow::Borrow;
 
@@ -211,6 +212,16 @@ pub struct Metadata {
 }
 
 const BLOG_POSTS: &[(Metadata, &dyn Fn(&Metadata) -> Html)] = &[
+    (
+        Metadata {
+            date: date!(2023 - 2 - 19),
+            slug: "learning-pytorch-with-rust",
+            title: "PyTorch + Rust",
+            subtitle: "",
+            published: false,
+        },
+        &p04_pytorch::post_4,
+    ),
     (
         Metadata {
             date: date!(2022 - 10 - 7),

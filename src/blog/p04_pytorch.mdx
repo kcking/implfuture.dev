@@ -1,0 +1,226 @@
+# nanoGPT + Rust
+
+> Mixing PyTorch + Python Notebooks + Rust
+
+I recently followed Andrej Karpathy's [Let's build GPT: from scratch, in code,
+spelled out](https://www.youtube.com/watch?v=kCc8FmEb1nY), implementing a
+simplified GPT in Python. The video is a fantastic learning resource. I
+recommend everyone go through it themselves to understand how transformers work.
+
+Out of curiousity, I set up a hybrid Rust + PyTorch development environment and
+re-implemented nanoGPT in Rust using the [PyTorch Rust
+bindings](https://github.com/LaurentMazare/tch-rs). This post will walk through
+how I did this so you can add Rust to your LLM development as well!
+
+# Starting point: `nanogpt.py`
+
+First, let's get our initial Python environment set up. Starting from a fresh [`conda`](https://conda.io) environment:
+
+```bash
+conda create --name nanogpt-rs
+conda install ipykernel pytorch matplotlib autopep8 maturin
+```
+
+We'll then generate our mixed Python/Rust project using [Maturin](https://www.maturin.rs):
+
+```bash
+mautrin new --mixed --bindings pyo3 nanogpt-rs
+```
+
+This will give us a starter project complete with a Rust library, a Python
+module wrapping that library, and the configuration to build and publish this
+package. From here, I copied my Python implementation and a simple Python
+Notebook to this folder. Feel free to clone the project starting at this point:
+
+```bash
+git clone --branch starter https://github.com/kcking/nanogpt-rs
+```
+
+Note that this implementation only contains features from the Youtube tutorial.
+Quite a few improvements have been [added
+upstream](https://github.com/karpathy/nanoGPT/commits/master) since.
+
+Make sure to select your new environment in VSCode for running
+Python Notebook cells. The first cell in `nanogpt.ipynb` sould plot the count of each
+character in the TinyShakespeare dataset. Even when writing a model in Rust, I
+find it useful to have a Python Notebook open for experimentation and data
+analysis.
+
+# Rusty Data Processing
+
+Processing data is one of the biggest wins for using Rust in an LLM environment.
+PyTorch `Tensor` operations are already optimized, backed by C++, and able to
+run on GPUs. But bata processing code is generally bespoke Python, which can be
+slow and error prone.
+
+Let's set up a Python module backed by Rust that we can use to pre-process our
+TinyShakespeare dataset.
+
+## Using Maturin
+
+The maturin starter project is immediately ready to be called from Python.
+Whenever we make a change to the Rust code, just run `maturin develop` to build
+and install the new module in the current environment.
+
+The `nanogpt_rs` module can now be imported into `.py`/`.ipynb` files:
+
+```py
+import nanogpt_rs
+# included in the default maturin template
+print(nanogpt_rs.sum_as_string(1, 2))
+```
+
+We can automatically re-run `maturin develop` using [`cargo-watch`](https://github.com/watchexec/cargo-watch):
+
+```bash
+cargo install cargo-watch
+cargo watch -s 'maturin develop' -w src
+```
+
+## Preprocessing TinyShakespeare
+
+The first step in training our LLM is defining the input space, or vocabulary,
+of the data. Since this is a character-based LLM, our vocabulary is just every
+unique character of the entire dataset. The implementation is almost as simple
+as Python's `set(text)`.
+
+```rust
+#[pyfunction]
+fn unique_characters(s: &str) -> HashSet<char> {
+    HashSet::from_iter(s.chars())
+}
+```
+
+Now we can compare the two implementations in our Notebook:
+
+```py
+import nanogpt
+import nanogpt_rs
+import timeit
+
+# Test correctness
+assert(set(nanogpt.chars) == nanogpt_rs.unique_characters(nanogpt.text))
+
+iters = 100
+py_time = timeit.timeit('set(nanogpt.text)', setup="import nanogpt", number=iters)
+rs_time = timeit.timeit('nanogpt_rs.unique_characters(nanogpt.text)', setup="import nanogpt, nanogpt_rs", number=iters)
+
+print(f"python: {py_time/iters:.4f}s/iter, rust: {rs_time/iters:.4f}s/iter")
+```
+
+which outputs
+
+```bash
+python: 0.0079, rust: 0.2327
+```
+
+whoa, wait a second... the Rust implementation is 30x slower! It turns out
+`maturin develop` compiles Rust in debug mode by default. We can add the
+`--release` flag to maturin to compile in release mode.
+
+```bash
+cargo watch -s 'maturin develop --release' -w src
+```
+
+this nets us a ~30x speedup: `python: 0.0069s/iter, rust: 0.0082s/iter`. Rust
+is now within striking distance, but still a bit slower.
+
+### `ahash`
+
+Rust's default `HashSet` implementation is based on Google's SwissTable design
+which appears to be slower than Python's. The
+[`ahash`](https://github.com/tkaitchuck/ahash) crate uses accelerated AES
+operations for hashing. We can use it as a drop-in replacement for
+`std::collections::HashSet`.
+
+```bash
+cargo add ahash
+```
+
+```rust
+// use std::collections::HashSet
+use ahash::HashSet;
+```
+
+This quick change brings our time to `python: 0.0069s/iter, rust: 0.0029s/iter`.
+Rust is now ~2.5x faster!
+
+### Custom Hash Function
+
+If we want to push performance even further, we can write our own custom hash
+function. Our hash inputs are just single characters, and there's only 65 of
+them in the dataset. We really only care about the `Set` in `HashSet`. The best
+hash function for this input may just be the identity function. We can implement
+it using Rust's `Hasher` trait:
+
+```rust
+#[derive(Debug, Clone, Default)]
+struct CharHasher {
+    c: char,
+}
+
+impl Hasher for CharHasher {
+    fn write(&mut self, bytes: &[u8]) {
+        //  `char` in Rust is fixed-width with 4 bytes.
+        if bytes.len() != 4 {
+            return;
+        }
+        self.c =
+            char::from_u32(u32::from_le_bytes(bytes.try_into().unwrap_or([0; 4]))).unwrap_or('a');
+    }
+
+    fn finish(&self) -> u64 {
+        self.c as _
+    }
+}
+
+impl BuildHasher for CharHasher {
+    type Hasher = Self;
+
+    fn build_hasher(&self) -> Self::Hasher {
+        Self::default()
+    }
+}
+```
+
+We can then specify our custom Hasher in the function signature:
+
+```rust
+#[pyfunction]
+fn unique_characters(s: &str) -> HashSet<char, CharHasher> {
+    HashSet::from_iter(s.chars())
+}
+```
+
+> Note that this hash function only works for `char`s and relies on the
+> implementation details of `std::collections::HashMap`. It could be made more
+> generic with a little extra logic like tracking how many bytes have been
+> written so far.
+
+With our custom hash function, the new timings are `python: 0.0069s/iter, rust:
+0.0019s/iter` -- Rust is now more than 3.5x faster!
+
+We could potentially push further and use `SmallVec` (a stack-allocated `Vec`),
+avoiding a `HashSet` altogether. I personally liked that this solution kept all
+of the ergonomics of `HashSet`.
+
+### Add Types :sparkles:
+
+## Define nn.Module in rust
+
+### Install correct pytorch and tch crate
+
+### Add env vars
+
+## Use ipynb for visualization
+
+## Thoughts
+
+- rust prevents some errors like forgetting to return a value from Module.forward
+- future work: expose tch types as Pyo3 objects, generate Python typings
+
+## TensorExt / ModuleExt traits
+
+- fill in common default params
+
+### TODO: Parallelism
