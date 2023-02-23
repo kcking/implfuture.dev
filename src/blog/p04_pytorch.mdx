@@ -213,8 +213,8 @@ With our custom hash function, the new timings are `python: 0.0069s/iter, rust:
 0.0019s/iter` -- Rust is now more than 3.5x faster!
 
 We could potentially push further and use `SmallVec` (a stack-allocated `Vec`),
-avoiding a `HashSet` altogether. I personally liked the ` Hasher`` solution kept all
-of the ergonomics of  `HashSet`, but feel free to try it! With larger datasets,
+avoiding a `HashSet` altogether. I personally liked the `Hasher` solution kept all
+of the ergonomics of `HashSet`, but feel free to try it! With larger datasets,
 we can also start to consider streaming using async I/O and parallel processing
 using [`rayon`](https://github.com/rayon-rs/rayon).
 
