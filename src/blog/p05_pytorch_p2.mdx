@@ -1,17 +1,57 @@
 # [WIP] nanoGPT + Rust -- Part 2
 
+> Writing models in Rust
+
+# Status
+
+- [x] exposed rust struct to python
+- [x] updated tch-rs fork to make tch::Tensor compatible with pyo3
+- [x] try calling a Rust module from a python Module and see if autograd works
+  - Doesn't appear possible to compose python + rust modules, since we can't
+    create a subclass of Module in Rust: https://github.com/PyO3/pyo3/issues/991
+  - this rules out using pure rust modules from python. we can still write functions that receive and return tensors though!
+- [ ] rewrite subroutines in rust
+- [ ] rewrite entire model in rust
+
 ## Define nn.Module in rust
 
 ### Install correct pytorch and tch crate
 
+- tch just got support for pytorch 2.0
+
+```
+# upgrade to pytorch 2.0
+conda install pytorch torchvision torchaudio -c pytorch
+# add tch to our crate
+cargo add tch --git https://github.com/kcking/tch-rs --branch python-interop
+```
+
 ### Add env vars
+
+```
+conda env config vars set LIBTORCH=$(python3 -c 'import torch; from pathlib import Path; print(Path(torch.__file__).parent)')
+conda env config vars set DYLD_LIBRARY_PATH=${LIBTORCH}/lib
+```
+
+> NOTE: re-open vscode from inside the conda environment so it uses the correct
+> environment variables.
+
+### Python interop
+
+https://github.com/kcking/tch-rs/tree/python-interop
+
+### VarStore
+
+libtorch way of doing backprop that python hides
+
+- is it possible to mix python and rust nn.Modules? unclear how to bridge rust VarStore with python autograd
 
 ## Use ipynb for visualization
 
 ## Thoughts
 
 - rust prevents some errors like forgetting to return a value from Module.forward
-- future work: expose tch types as Pyo3 objects, generate Python typings
+- future work: expose tch types as Pyo3 objects, generate Python typings, autograd interop
 
 ## TensorExt / ModuleExt traits
 
