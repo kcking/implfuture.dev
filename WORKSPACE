@@ -1,13 +1,11 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-RULES_RUST_VERSION = "0.18.0"
+RULES_RUST_VERSION = "0.20.0"
 
 http_archive(
     name = "rules_rust",
-    sha256 = "2466e5b2514772e84f9009010797b9cd4b51c1e6445bbd5b5e24848d90e6fb2e",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_rust/releases/download/{RULES_RUST_VERSION}/rules_rust-v{RULES_RUST_VERSION}.tar.gz".format(RULES_RUST_VERSION = RULES_RUST_VERSION),
         "https://github.com/bazelbuild/rules_rust/releases/download/{RULES_RUST_VERSION}/rules_rust-v{RULES_RUST_VERSION}.tar.gz".format(RULES_RUST_VERSION = RULES_RUST_VERSION),
     ],
 )
@@ -31,7 +29,6 @@ load("@rules_rust//crate_universe:defs.bzl", "crates_repository", "splicing_conf
 crates_repository(
     name = "crate_index",
     cargo_lockfile = "//:Cargo.lock",
-    generator_sha256s = {"aarch64-apple-darwin": "77e55540c26bf180b3f6bb5523f24aeef02d4c1b4525426cf13c547aa9698c75"},
     isolated = False,
     lockfile = "//:cargo-bazel.lock.json",
     manifests = [
@@ -117,9 +114,8 @@ emsdk_emscripten_deps(emscripten_version = "3.1.19")
 # )
 git_repository(
     name = "bazel-zig-cc",
-    commit = "f6b16c386f91232372e9f3cc335b48c56d7d5b4c",
-    remote = "https://git.sr.ht/~motiejus/bazel-zig-cc",
-    shallow_since = "1664103119 +0300",
+    commit = "041d7f26ab51361613af245a3a5ba3fe83130618",
+    remote = "https://github.com/uber/bazel-zig-cc",
 )
 
 load("@bazel-zig-cc//toolchain:defs.bzl", zig_toolchains = "toolchains")

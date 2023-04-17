@@ -1,5 +1,5 @@
 {
-  "checksum": "84fb18bd7c3525c149596a500fe0f1233a096ebfb7da644b6a2d645f0695710a",
+  "checksum": "90bf4a23a1dfcb78a31827e9655ebf22da037df8dd2fd0d4663e6ad9b50acd7b",
   "crates": {
     "ahash 0.3.8": {
       "name": "ahash",
@@ -4429,11 +4429,109 @@
           "**"
         ],
         "crate_features": {
-          "common": [
-            "default",
-            "std"
-          ],
-          "selects": {}
+          "common": [],
+          "selects": {
+            "aarch64-apple-darwin": [
+              "default",
+              "std"
+            ],
+            "aarch64-apple-ios": [
+              "default",
+              "std"
+            ],
+            "aarch64-apple-ios-sim": [
+              "default",
+              "std"
+            ],
+            "aarch64-fuchsia": [
+              "default",
+              "std"
+            ],
+            "aarch64-linux-android": [
+              "default",
+              "std"
+            ],
+            "aarch64-unknown-linux-gnu": [
+              "default",
+              "std"
+            ],
+            "arm-unknown-linux-gnueabi": [
+              "default",
+              "std"
+            ],
+            "armv7-linux-androideabi": [
+              "default",
+              "std"
+            ],
+            "armv7-unknown-linux-gnueabi": [
+              "default",
+              "std"
+            ],
+            "i686-apple-darwin": [
+              "default",
+              "std"
+            ],
+            "i686-linux-android": [
+              "default",
+              "std"
+            ],
+            "i686-unknown-freebsd": [
+              "default",
+              "std"
+            ],
+            "i686-unknown-linux-gnu": [
+              "default",
+              "std"
+            ],
+            "powerpc-unknown-linux-gnu": [
+              "default",
+              "std"
+            ],
+            "riscv32imc-unknown-none-elf": [
+              "default",
+              "std"
+            ],
+            "riscv64gc-unknown-none-elf": [
+              "default",
+              "std"
+            ],
+            "s390x-unknown-linux-gnu": [
+              "default",
+              "std"
+            ],
+            "wasm32-unknown-unknown": [
+              "default",
+              "std"
+            ],
+            "wasm32-wasi": [
+              "default",
+              "std"
+            ],
+            "x86_64-apple-darwin": [
+              "default",
+              "std"
+            ],
+            "x86_64-apple-ios": [
+              "default",
+              "std"
+            ],
+            "x86_64-fuchsia": [
+              "default",
+              "std"
+            ],
+            "x86_64-linux-android": [
+              "default",
+              "std"
+            ],
+            "x86_64-unknown-freebsd": [
+              "default",
+              "std"
+            ],
+            "x86_64-unknown-linux-gnu": [
+              "default",
+              "std"
+            ]
+          }
         },
         "deps": {
           "common": [
@@ -7270,10 +7368,6 @@
             {
               "id": "itoa 1.0.5",
               "target": "itoa"
-            },
-            {
-              "id": "serde 1.0.152",
-              "target": "serde"
             },
             {
               "id": "time-core 0.1.0",
@@ -10218,6 +10312,7 @@
       "aarch64-apple-darwin",
       "aarch64-apple-ios",
       "aarch64-apple-ios-sim",
+      "aarch64-fuchsia",
       "aarch64-linux-android",
       "aarch64-pc-windows-msvc",
       "aarch64-unknown-linux-gnu",
@@ -10234,6 +10329,7 @@
       "wasm32-wasi",
       "x86_64-apple-darwin",
       "x86_64-apple-ios",
+      "x86_64-fuchsia",
       "x86_64-linux-android",
       "x86_64-pc-windows-msvc",
       "x86_64-unknown-freebsd",
@@ -10244,6 +10340,7 @@
       "aarch64-apple-darwin",
       "aarch64-apple-ios",
       "aarch64-apple-ios-sim",
+      "aarch64-fuchsia",
       "aarch64-linux-android",
       "aarch64-pc-windows-msvc",
       "aarch64-unknown-linux-gnu",
@@ -10263,6 +10360,7 @@
       "wasm32-wasi",
       "x86_64-apple-darwin",
       "x86_64-apple-ios",
+      "x86_64-fuchsia",
       "x86_64-linux-android",
       "x86_64-pc-windows-msvc",
       "x86_64-unknown-freebsd",
@@ -10272,6 +10370,7 @@
       "aarch64-apple-darwin",
       "aarch64-apple-ios",
       "aarch64-apple-ios-sim",
+      "aarch64-fuchsia",
       "aarch64-linux-android",
       "aarch64-pc-windows-msvc",
       "aarch64-unknown-linux-gnu",
@@ -10289,6 +10388,7 @@
       "s390x-unknown-linux-gnu",
       "x86_64-apple-darwin",
       "x86_64-apple-ios",
+      "x86_64-fuchsia",
       "x86_64-linux-android",
       "x86_64-pc-windows-msvc",
       "x86_64-unknown-freebsd",
@@ -10298,6 +10398,7 @@
       "aarch64-apple-darwin",
       "aarch64-apple-ios",
       "aarch64-apple-ios-sim",
+      "aarch64-fuchsia",
       "aarch64-linux-android",
       "aarch64-unknown-linux-gnu",
       "arm-unknown-linux-gnueabi",
@@ -10315,6 +10416,7 @@
       "wasm32-wasi",
       "x86_64-apple-darwin",
       "x86_64-apple-ios",
+      "x86_64-fuchsia",
       "x86_64-linux-android",
       "x86_64-unknown-freebsd",
       "x86_64-unknown-linux-gnu"
@@ -10323,6 +10425,7 @@
       "aarch64-apple-darwin",
       "aarch64-apple-ios",
       "aarch64-apple-ios-sim",
+      "aarch64-fuchsia",
       "aarch64-linux-android",
       "aarch64-pc-windows-msvc",
       "aarch64-unknown-linux-gnu",
@@ -10342,6 +10445,7 @@
       "wasm32-wasi",
       "x86_64-apple-darwin",
       "x86_64-apple-ios",
+      "x86_64-fuchsia",
       "x86_64-linux-android",
       "x86_64-pc-windows-msvc",
       "x86_64-unknown-freebsd",
@@ -10362,6 +10466,7 @@
       "aarch64-apple-darwin",
       "aarch64-apple-ios",
       "aarch64-apple-ios-sim",
+      "aarch64-fuchsia",
       "aarch64-linux-android",
       "aarch64-unknown-linux-gnu",
       "arm-unknown-linux-gnueabi",
@@ -10375,6 +10480,7 @@
       "s390x-unknown-linux-gnu",
       "x86_64-apple-darwin",
       "x86_64-apple-ios",
+      "x86_64-fuchsia",
       "x86_64-linux-android",
       "x86_64-unknown-freebsd",
       "x86_64-unknown-linux-gnu"
