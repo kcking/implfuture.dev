@@ -1,7 +1,7 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-RULES_RUST_VERSION = "0.20.0"
+RULES_RUST_VERSION = "0.29.0"
 
 http_archive(
     name = "rules_rust",
@@ -99,33 +99,29 @@ load("@emsdk//:emscripten_deps.bzl", emsdk_emscripten_deps = "emscripten_deps")
 
 emsdk_emscripten_deps(emscripten_version = "3.1.19")
 
-# zigcc
-# BAZEL_ZIG_CC_VERSION = "v0.9.1"
+HERMETIC_CC_TOOLCHAIN_VERSION = "v2.1.2"
 
-# http_archive(
-#     name = "bazel-zig-cc",
-#     sha256 = "ab596041c0217a66ed8e6af49955c5d427b1f3e5b5603713696b3444810608f0",
-#     strip_prefix = "bazel-zig-cc-{}".format(BAZEL_ZIG_CC_VERSION),
-#     urls = ["https://git.sr.ht/~motiejus/bazel-zig-cc/archive/{}.tar.gz".format(BAZEL_ZIG_CC_VERSION)],
-# )
-# local_repository(
-#     name = "bazel-zig-cc",
-#     path = "../dev/bazel-zig-cc",
-# )
-git_repository(
-    name = "bazel-zig-cc",
-    commit = "041d7f26ab51361613af245a3a5ba3fe83130618",
-    remote = "https://github.com/uber/bazel-zig-cc",
+http_archive(
+    name = "hermetic_cc_toolchain",
+    sha256 = "28fc71b9b3191c312ee83faa1dc65b38eb70c3a57740368f7e7c7a49bedf3106",
+    urls = [
+        "https://mirror.bazel.build/github.com/uber/hermetic_cc_toolchain/releases/download/{0}/hermetic_cc_toolchain-{0}.tar.gz".format(HERMETIC_CC_TOOLCHAIN_VERSION),
+        "https://github.com/uber/hermetic_cc_toolchain/releases/download/{0}/hermetic_cc_toolchain-{0}.tar.gz".format(HERMETIC_CC_TOOLCHAIN_VERSION),
+    ],
 )
 
-load("@bazel-zig-cc//toolchain:defs.bzl", zig_toolchains = "toolchains")
+load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains")
+
+# Plain zig_toolchains() will pick reasonable defaults. See
+# toolchain/defs.bzl:toolchains on how to change the Zig SDK version and
+# download URL.
 
 zig_toolchains()
 
 # compression for large wasm bundle
 git_repository(
     name = "brotli",
-    commit = "9801a2c5d6c67c467ffad676ac301379bb877fc3",  # 2022-05-12
+    commit = "ed738e842d2fbdf2d6459e39267a633c4a9b2f5d",  # 2023-08-29
     remote = "https://github.com/google/brotli",
 )
 
