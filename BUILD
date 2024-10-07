@@ -1,6 +1,6 @@
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
-load("@rules_rust//wasm_bindgen:wasm_bindgen.bzl", "rust_wasm_bindgen")
+load("@rules_rust//wasm_bindgen:defs.bzl", "rust_wasm_bindgen")
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library")
 load("//emsdk:emsdk.bzl", "wasmopt")
 

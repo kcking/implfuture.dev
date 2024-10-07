@@ -1,7 +1,7 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-RULES_RUST_VERSION = "0.29.0"
+RULES_RUST_VERSION = "0.52.1"
 
 http_archive(
     name = "rules_rust",
