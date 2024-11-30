@@ -19,3 +19,16 @@ In order to push to ECR, make sure `~/.docker/config.json` contains:
   "credsStore": "ecr-login"
 }
 ```
+
+To authenticate with podman, use
+```bash
+aws ecr get-login-password --region us-west-1 | podman login --username AWS --password-stdin 689191389309.dkr.ecr.us-west-1.amazonaws.com
+```
+with config
+```json
+{
+	"auths": {},
+	"credsStore": "ecr-login",
+	"currentContext": "desktop-linux"
+}
+```

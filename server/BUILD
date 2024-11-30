@@ -1,11 +1,10 @@
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_binary")
-load(
-    "@io_bazel_rules_docker//container:container.bzl",
-    "container_image",
-    "container_push",
-)
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_push", "oci_image_index")
+load("transition.bzl", "multi_arch")
+load("@aspect_bazel_lib//lib:jq.bzl", "jq")
+
 
 rust_binary(
     name = "server",
@@ -81,13 +80,23 @@ pkg_tar(
     strip_prefix = "/server",
 )
 
-container_image(
+multi_arch(
     name = "image-arm64",
-    architecture = "arm64",
-    # References container_pull from WORKSPACE (above)
-    base = "@cc_base//image",
+    image = ":image",
+    platforms = [":linux_arm64"]
+)
+
+multi_arch(
+    name = "image-amd64",
+    image = ":image",
+    platforms = [":linux_amd64"]
+)
+
+oci_image(
+    name = "image",
+
+    base = "@distroless_base",
     cmd = ["/app/opt"],
-    enable_mtime_preservation = True,
     env = {
         "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
     },
@@ -95,26 +104,26 @@ container_image(
     workdir = "/app",
 )
 
-container_image(
-    name = "image-amd64",
-    architecture = "amd64",
-    # References container_pull from WORKSPACE (above)
-    base = "@cc_base//image",
-    cmd = ["/app/opt"],
-    enable_mtime_preservation = True,
-    env = {
-        "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
-    },
-    tars = [":opt_tar"],
-    workdir = "/app",
+
+oci_image_index(
+    name = "index",
+    images = [
+        ":image-arm64",
+        ":image-amd64",
+    ],
 )
 
 # uses https://github.com/awslabs/amazon-ecr-credential-helper
-container_push(
+oci_push(
     name = "push-amd64",
-    format = "Docker",
     image = ":image-amd64",
-    registry = "689191389309.dkr.ecr.us-west-1.amazonaws.com",
-    repository = "implfuture",
-    tag = "latest",
+    repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
+    remote_tags = ["latest"],
+)
+
+jq(
+    name="amd64-digest",
+    srcs=["index/index.json"],
+    out="image-amd64-digest.txt",
+    filter=".manifests[] | select( .platform.architecture == \"amd64\") .digest"
 )
