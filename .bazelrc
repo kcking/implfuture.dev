@@ -1,1 +1,3 @@
 build --incompatible_enable_cc_toolchain_resolution=1
+common --enable_bzlmod
+

@@ -1,50 +1,8 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-RULES_RUST_VERSION = "0.52.1"
+workspace(name = "implfuture.dev")
 
-http_archive(
-    name = "rules_rust",
-    urls = [
-        "https://github.com/bazelbuild/rules_rust/releases/download/{RULES_RUST_VERSION}/rules_rust-v{RULES_RUST_VERSION}.tar.gz".format(RULES_RUST_VERSION = RULES_RUST_VERSION),
-    ],
-)
-
-load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
-
-rules_rust_dependencies()
-
-rust_register_toolchains(extra_target_triples = [
-    "wasm32-unknown-unknown",
-    "x86_64-unknown-linux-gnu",
-    "aarch64-unknown-linux-gnu",
-])
-
-load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
-
-crate_universe_dependencies()
-
-load("@rules_rust//crate_universe:defs.bzl", "crates_repository", "splicing_config")
-
-crates_repository(
-    name = "crate_index",
-    cargo_lockfile = "//:Cargo.lock",
-    isolated = False,
-    lockfile = "//:cargo-bazel.lock.json",
-    manifests = [
-        "//:Cargo.toml",
-        "//server:Cargo.toml",
-    ],
-    splicing_config = splicing_config(resolver_version = "2"),
-)
-
-load("@crate_index//:defs.bzl", "crate_repositories")
-
-crate_repositories()
-
-load("@rules_rust//wasm_bindgen:repositories.bzl", "rust_wasm_bindgen_repositories")
-
-rust_wasm_bindgen_repositories()
 
 # for tailwind / esbuild bundling
 http_archive(
@@ -124,21 +82,6 @@ git_repository(
     commit = "ed738e842d2fbdf2d6459e39267a633c4a9b2f5d",  # 2023-08-29
     remote = "https://github.com/google/brotli",
 )
-
-# in-bazel rules_pkg is deprecated, this is the new repo
-
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(
-    name = "rules_pkg",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_pkg/releases/download/0.9.1/rules_pkg-0.9.1.tar.gz",
-        "https://github.com/bazelbuild/rules_pkg/releases/download/0.9.1/rules_pkg-0.9.1.tar.gz",
-    ],
-    sha256 = "8f9ee2dc10c1ae514ee599a8b42ed99fa262b757058f65ad3c384289ff70c4b8",
-)
-load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
-rules_pkg_dependencies()
-
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
