@@ -14,20 +14,63 @@ use futures::future::BoxFuture;
 use futures::ready;
 use implfuture::ServerAppProps;
 use once_cell::sync::Lazy;
+use serde_json::Value as JsonValue;
 use tokio_util::task::LocalPoolHandle;
 use tower::Service;
 use tower_http::services::ServeDir;
 use yew_router::Routable;
 
 lazy_static::lazy_static!(
+    // Use the source HTML as a template; inject built assets from manifest.
     static ref INDEX_HTML: String = {
-        String::from_utf8( std::fs::read("bundle/dist/index.html").unwrap().try_into().unwrap()).unwrap()
+        String::from_utf8(std::fs::read("bundle/index.html").unwrap().try_into().unwrap()).unwrap()
     };
     static ref APP_WASM_PATH: &'static str = {
         option_env!("APP_WASM_PATH").unwrap_or("/app_wasm_bg.wasm")
     };
     static ref APP_JS_PATH: &'static str = {
         option_env!("APP_JS_PATH").unwrap_or("/app_wasm.js")
+    };
+    static ref BUNDLE_ASSETS: Option<(String, Vec<String>)> = {
+        // Parse Vite manifest for entry js and css
+        match std::fs::read_to_string("bundle/dist/manifest.json") {
+            Ok(contents) => {
+                let manifest: JsonValue = match serde_json::from_str(&contents) {
+                    Ok(v) => v,
+                    Err(_) => return None,
+                };
+                // Find an entry with isEntry = true; prefer key ending in index.html or index.ts/tsx/js
+                let mut chosen: Option<&JsonValue> = None;
+                let mut chosen_key_score: i32 = -1;
+                if let Some(obj) = manifest.as_object() {
+                    for (k, v) in obj.iter() {
+                        let is_entry = v.get("isEntry").and_then(|b| b.as_bool()).unwrap_or(false);
+                        if !is_entry { continue; }
+                        // scoring: prefer keys that look like index
+                        let score = if k.ends_with("index.html") { 3 }
+                            else if k.ends_with("index.ts") || k.ends_with("index.tsx") { 2 }
+                            else if k.ends_with("index.js") || k.ends_with("index.jsx") { 2 }
+                            else { 1 };
+                        if score > chosen_key_score {
+                            chosen = Some(v);
+                            chosen_key_score = score;
+                        }
+                    }
+                }
+                if let Some(entry) = chosen {
+                    let js_file = entry.get("file").and_then(|s| s.as_str()).map(|s| format!("/{}", s));
+                    let css_files: Vec<String> = entry
+                        .get("css")
+                        .and_then(|arr| arr.as_array())
+                        .map(|arr| arr.iter().filter_map(|v| v.as_str().map(|s| format!("/{}", s))).collect())
+                        .unwrap_or_default();
+                    if let Some(js) = js_file { Some((js, css_files)) } else { None }
+                } else {
+                    None
+                }
+            }
+            Err(_) => None,
+        }
     };
 );
 
@@ -44,6 +87,20 @@ fn html_wasm_init_head() -> String {
         js_path = *APP_JS_PATH,
         wasm_path = *APP_WASM_PATH,
     )
+}
+
+fn bundle_head_tags() -> String {
+    if let Some((ref js, ref css_list)) = *BUNDLE_ASSETS {
+        let mut out = String::new();
+        for css in css_list {
+            out.push_str(&format!("\n    <link rel=\"stylesheet\" href=\"{}\" />", css));
+        }
+        out.push_str(&format!("\n    <script type=\"module\" src=\"{}\"></script>\n", js));
+        out
+    } else {
+        // Fallback to dev index.js if manifest missing
+        "\n    <script type=\"module\" src=\"/index.js\"></script>\n".to_string()
+    }
 }
 
 async fn index(
@@ -65,9 +122,11 @@ async fn index(
         })
         .await
         .unwrap();
-    let html = index_html_s
+    // Remove dev script tag if present to avoid duplicate loads
+    let cleaned = index_html_s.replace("<script type=\"module\" src=\"/index.js\"></script>", "");
+    let html = cleaned
         .replace("<body>", &format!("<body>{}", out))
-        .replace("</head>", &format!("{}</head>", html_wasm_init_head()));
+        .replace("</head>", &format!("{}{}</head>", bundle_head_tags(), html_wasm_init_head()));
     (
         HeaderMap::from_iter([(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"))]),
         Html(html),
@@ -87,10 +146,14 @@ async fn main() -> Result<()> {
     }
     let app_wasm_serve = get_service(app_wasm_serve).handle_error(handle_error);
     let static_serve = get_service(ServeDir::new("static")).handle_error(handle_error);
+    let dist_serve = get_service(ServeDir::new("bundle/dist")).handle_error(handle_error);
     let route_service = RoutableService::<implfuture::Route, _, _>::new(
         get(index),
         route(*APP_JS_PATH, app_wasm_serve.clone())
             .route(*APP_WASM_PATH, app_wasm_serve)
+            // Serve built assets from Vite dist first
+            .fallback(dist_serve)
+            // Fallback to legacy static dir
             .fallback(static_serve),
     );
     let route_service = get_service(route_service).layer(Extension(INDEX_HTML.to_string()));
