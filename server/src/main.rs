@@ -23,7 +23,7 @@ use yew_router::Routable;
 lazy_static::lazy_static!(
     // Use the source HTML as a template; inject built assets from manifest.
     static ref INDEX_HTML: String = {
-        String::from_utf8(std::fs::read("bundle/index.html").unwrap().try_into().unwrap()).unwrap()
+        String::from_utf8(std::fs::read("bundle/dist/index.html").unwrap().try_into().unwrap()).unwrap()
     };
     static ref APP_WASM_PATH: &'static str = {
         option_env!("APP_WASM_PATH").unwrap_or("/app_wasm_bg.wasm")
@@ -33,12 +33,12 @@ lazy_static::lazy_static!(
     };
     static ref BUNDLE_ASSETS: Option<(String, Vec<String>)> = {
         // Parse Vite manifest for entry js and css
-        match std::fs::read_to_string("bundle/dist/manifest.json") {
-            Ok(contents) => {
+        let contents =  std::fs::read_to_string("bundle/dist/manifest.json").unwrap();
                 let manifest: JsonValue = match serde_json::from_str(&contents) {
                     Ok(v) => v,
                     Err(_) => return None,
                 };
+                eprintln!("loaded manifest.");
                 // Find an entry with isEntry = true; prefer key ending in index.html or index.ts/tsx/js
                 let mut chosen: Option<&JsonValue> = None;
                 let mut chosen_key_score: i32 = -1;
@@ -68,9 +68,6 @@ lazy_static::lazy_static!(
                 } else {
                     None
                 }
-            }
-            Err(_) => None,
-        }
     };
 );
 
@@ -93,9 +90,15 @@ fn bundle_head_tags() -> String {
     if let Some((ref js, ref css_list)) = *BUNDLE_ASSETS {
         let mut out = String::new();
         for css in css_list {
-            out.push_str(&format!("\n    <link rel=\"stylesheet\" href=\"{}\" />", css));
+            out.push_str(&format!(
+                "\n    <link rel=\"stylesheet\" href=\"{}\" />",
+                css
+            ));
         }
-        out.push_str(&format!("\n    <script type=\"module\" src=\"{}\"></script>\n", js));
+        out.push_str(&format!(
+            "\n    <script type=\"module\" src=\"{}\"></script>\n",
+            js
+        ));
         out
     } else {
         // Fallback to dev index.js if manifest missing
@@ -126,7 +129,10 @@ async fn index(
     let cleaned = index_html_s.replace("<script type=\"module\" src=\"/index.js\"></script>", "");
     let html = cleaned
         .replace("<body>", &format!("<body>{}", out))
-        .replace("</head>", &format!("{}{}</head>", bundle_head_tags(), html_wasm_init_head()));
+        .replace(
+            "</head>",
+            &format!("{}{}</head>", bundle_head_tags(), html_wasm_init_head()),
+        );
     (
         HeaderMap::from_iter([(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"))]),
         Html(html),
