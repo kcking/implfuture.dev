@@ -1,10 +1,8 @@
-load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
-load("@rules_rust_wasm_bindgen//:defs.bzl", "rust_wasm_bindgen")
+load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library")
+load("@rules_rust_wasm_bindgen//:defs.bzl", "rust_wasm_bindgen")
 load("//emsdk:emsdk.bzl", "wasmopt")
-
-
 
 package(
     default_visibility = ["//:__subpackages__"],
@@ -98,8 +96,9 @@ rust_wasm_bindgen(
 filegroup(
     name = "static_files",
     srcs = glob(["static/**"]) + [
-        ":tailwind",
-        ":copybundletostatic",
+        # ":tailwind",
+        # ":copybundletostatic",
+        "//bundle",
     ],
 )
 

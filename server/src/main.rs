@@ -21,7 +21,7 @@ use yew_router::Routable;
 
 lazy_static::lazy_static!(
     static ref INDEX_HTML: String = {
-        String::from_utf8( std::fs::read("static/index.bzl.html").unwrap().try_into().unwrap()).unwrap()
+        String::from_utf8( std::fs::read("bundle/dist/index.html").unwrap().try_into().unwrap()).unwrap()
     };
     static ref APP_WASM_PATH: &'static str = {
         option_env!("APP_WASM_PATH").unwrap_or("/app_wasm_bg.wasm")

@@ -64,7 +64,7 @@ bin.vite_binary(
 )
 
 js_run_binary(
-    name = "build",
+    name = "bundle",
     srcs = [
         "index.html",
         "tsconfig.json",
@@ -75,4 +75,5 @@ js_run_binary(
     mnemonic = "ViteBuild",
     out_dirs = ["dist"],
     tool = ":vite",
+    visibility = ["//visibility:public"],
 )
