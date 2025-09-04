@@ -5,6 +5,7 @@
 # For more details, please check https://github.com/bazelbuild/bazel/issues/18958
 ###############################################################################
 bazel_dep(name = "rules_oci", version = "2.0.1")
+
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
 oci.pull(
     name = "distroless_base",
@@ -21,10 +22,12 @@ oci.pull(
 use_repo(oci, "distroless_base", "distroless_base_linux_amd64", "distroless_base_linux_arm64_v8")
 
 bazel_dep(name = "hermetic_cc_toolchain", version = "3.1.1")
-
 bazel_dep(name = "rules_rust", version = "0.56.0")
+
 RUST_EDITION = "2021"
+
 RUST_VERSION = "1.79.0"
+
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = RUST_EDITION,
@@ -40,7 +43,10 @@ crate_index.from_cargo(
     cargo_lockfile = "//:Cargo.lock",
     generate_binaries = True,
     # host_tools_repo = "rust_host_tools_nightly",
-    manifests = ["//:Cargo.toml", "//server:Cargo.toml"],
+    manifests = [
+        "//:Cargo.toml",
+        "//server:Cargo.toml",
+    ],
     # lockfile = "//:cargo-bazel-lock.json",
 )
 use_repo(
@@ -49,7 +55,6 @@ use_repo(
 )
 
 bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.56.0")
-
 bazel_dep(name = "rules_pkg", version = "1.0.1")
 
 #### JAVASCRIPT ####
