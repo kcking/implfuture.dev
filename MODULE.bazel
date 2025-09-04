@@ -20,9 +20,6 @@ oci.pull(
 )
 use_repo(oci, "distroless_base", "distroless_base_linux_amd64", "distroless_base_linux_arm64_v8")
 
-# for jq
-bazel_dep(name = "aspect_bazel_lib", version = "2.9.4")
-
 bazel_dep(name = "hermetic_cc_toolchain", version = "3.1.1")
 
 bazel_dep(name = "rules_rust", version = "0.56.0")
@@ -53,10 +50,46 @@ use_repo(
 
 bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.56.0")
 
-
-bazel_dep(name = "bazel_skylib", version = "1.7.1")
 bazel_dep(name = "rules_pkg", version = "1.0.1")
 
-bazel_dep(name = "rules_nodejs", version = "6.3.3")
+#### JAVASCRIPT ####
 
+# for jq as well
+bazel_dep(name = "aspect_bazel_lib", version = "2.21.0")
+bazel_dep(name = "aspect_rules_lint", version = "1.2.2")
+bazel_dep(name = "aspect_rules_jest", version = "0.22.0")
+bazel_dep(name = "aspect_rules_js", version = "2.5.0")
+bazel_dep(name = "aspect_rules_swc", version = "2.4.4")
+bazel_dep(name = "aspect_rules_ts", version = "3.1.0")
+bazel_dep(name = "aspect_rules_rollup", version = "2.0.1")
+bazel_dep(name = "aspect_rules_webpack", version = "0.16.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
+bazel_dep(name = "rules_nodejs", version = "6.5.0")
 
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
+node.toolchain(node_version = "20.13.1")
+
+pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm", dev_dependency = True)
+use_repo(pnpm, "pnpm")
+
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm", dev_dependency = True)
+npm.npm_translate_lock(
+    name = "app_npm",
+    # npmrc = "//bazel:.npmrc",
+    pnpm_lock = "//bundle:pnpm-lock.yaml",
+    # public_hoist_packages = {
+    #     "@next/eslint-plugin-next": ["next.js"],
+    #     "eslint-config-react-app": ["react"],
+    #     "eslint@8.28.0": ["react"],
+    # },
+    verify_node_modules_ignored = "//:.bazelignore",
+)
+use_repo(npm, "app_npm")
+
+rules_ts_ext = use_extension(
+    "@aspect_rules_ts//ts:extensions.bzl",
+    "ext",
+    dev_dependency = True,
+)
+rules_ts_ext.deps()
+use_repo(rules_ts_ext, "npm_typescript")
