@@ -4,7 +4,7 @@
 #
 # For more details, please check https://github.com/bazelbuild/bazel/issues/18958
 ###############################################################################
-bazel_dep(name = "rules_oci", version = "2.0.1")
+bazel_dep(name = "rules_oci", version = "2.2.6")
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
 oci.pull(
@@ -123,3 +123,6 @@ register_toolchains(
     "//emsdk:emsdk_linux_toolchain",
     "//emsdk:emsdk_win_toolchain",
 )
+
+### for platforms for multiarch image
+bazel_dep(name = "rules_go", version = "0.57.0")
