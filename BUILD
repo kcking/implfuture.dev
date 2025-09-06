@@ -102,14 +102,6 @@ filegroup(
     ],
 )
 
-genrule(
-    name = "copybundletostatic",
-    srcs = ["//bundle"],
-    outs = ["static/bundle.js"],
-    cmd = "cp $(@D)/../bundle/bundle.js $(OUTS)",
-    cmd_bat = "copy \"$(@D)\\..\\bundle\\bundle.js\" $(OUTS)",
-)
-
 wasmopt(
     name = "app_wasm_opt",
     src = ":app_wasm",
