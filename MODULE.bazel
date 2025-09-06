@@ -23,6 +23,7 @@ use_repo(oci, "distroless_base", "distroless_base_linux_amd64", "distroless_base
 
 bazel_dep(name = "hermetic_cc_toolchain", version = "3.1.1")
 bazel_dep(name = "rules_rust", version = "0.56.0")
+bazel_dep(name = "platforms", version = "0.0.11")
 
 RUST_EDITION = "2021"
 
@@ -98,3 +99,27 @@ rules_ts_ext = use_extension(
 )
 rules_ts_ext.deps()
 use_repo(rules_ts_ext, "npm_typescript")
+
+#### wasm compression
+bazel_dep(name = "brotli", version = "1.1.0")
+
+#### wasm-opt
+bazel_dep(name = "emsdk", version = "4.0.13")
+
+emscripten_deps = use_extension(
+    "@emsdk//:emscripten_deps.bzl",
+    "emscripten_deps",
+)
+use_repo(emscripten_deps, "emscripten_bin_linux")
+use_repo(emscripten_deps, "emscripten_bin_linux_arm64")
+use_repo(emscripten_deps, "emscripten_bin_mac")
+use_repo(emscripten_deps, "emscripten_bin_mac_arm64")
+use_repo(emscripten_deps, "emscripten_bin_win")
+
+# Register local emsdk toolchains (wasm-opt) so our custom rule can find them
+register_toolchains(
+    "//emsdk:emsdk_mac_arm64_toolchain",
+    "//emsdk:emsdk_mac_toolchain",
+    "//emsdk:emsdk_linux_toolchain",
+    "//emsdk:emsdk_win_toolchain",
+)

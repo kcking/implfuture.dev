@@ -106,13 +106,13 @@ filegroup(
 wasmopt(
     name = "app_wasm_opt",
     src = ":app_wasm",
-    out = "app_wasm_bg_opt.wasm",
+    out = "app_wasm/app_wasm_bg_opt.wasm",
 )
 
 genrule(
     name = "app_wasm_opt_br",
     srcs = [":app_wasm_opt"],
-    outs = ["app_wasm_bg_opt.wasm.br"],
+    outs = ["app_wasm/app_wasm_bg_opt.wasm.br"],
     cmd = "$(execpath @brotli) -9 $<",
     tools = ["@brotli"],
 )
