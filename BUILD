@@ -42,7 +42,8 @@ rust_binary(
         ],
         ":fastbuild": [],
         "//conditions:default": [
-            "-Clto",
+            # TODO: investigate getting lto working, potentially with --@rules_rust//rust/settings:lto=fat
+            # "-Clto",
             "-Ccodegen-units=1",
             "-Cpanic=abort",
             "-Copt-level=z",
