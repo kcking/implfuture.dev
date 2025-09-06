@@ -1,3 +1,4 @@
+load("@aspect_rules_js//js:defs.bzl", "js_library", "js_run_binary", "js_run_devserver", "js_test")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library")
@@ -96,19 +97,9 @@ rust_wasm_bindgen(
 filegroup(
     name = "static_files",
     srcs = glob(["static/**"]) + [
-        # ":tailwind",
-        # ":copybundletostatic",
+        ":tailwind",
         "//bundle",
     ],
-)
-
-genrule(
-    name = "tailwind",
-    srcs = glob(["src/**/*.rs"]) + ["tailwind.config.js"],
-    outs = ["static/tailwind.css"],
-    cmd = "$(execpath @root_npm//tailwindcss/bin:tailwindcss) --output=$(OUTS)",
-    tools = ["@root_npm//tailwindcss/bin:tailwindcss"],
-    visibility = ["//:__pkg__"],
 )
 
 genrule(
@@ -131,4 +122,14 @@ genrule(
     outs = ["app_wasm_bg_opt.wasm.br"],
     cmd = "$(execpath @brotli) -9 $<",
     tools = ["@brotli"],
+)
+
+js_run_binary(
+    name = "tailwind",
+    srcs = glob(["src/**/*.rs"]) + [
+        "tailwind.config.js",
+    ],
+    args = ["--output=static/css/tailwind.css"],
+    out_dirs = ["static/css"],
+    tool = "//bundle:tailwindcss",
 )

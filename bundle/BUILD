@@ -1,4 +1,5 @@
 load("@app_npm//:defs.bzl", "npm_link_all_packages")
+load("@app_npm//bundle:tailwindcss/package_json.bzl", tailwindcss = "bin")
 
 # use tsconfig-to-swcconfig from react npm package
 load("@app_npm//bundle:tsconfig-to-swcconfig/package_json.bzl", tsconfig_to_swcconfig = "bin")
@@ -6,6 +7,8 @@ load("@app_npm//bundle:vite/package_json.bzl", "bin")
 load("@aspect_rules_js//js:defs.bzl", "js_library", "js_run_binary", "js_run_devserver", "js_test")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
 load(":defs.bzl", "TRANSPILER")
+
+package(default_visibility = ["//visibility:public"])
 
 npm_link_all_packages()
 
@@ -76,4 +79,9 @@ js_run_binary(
     out_dirs = ["dist"],
     tool = ":vite",
     visibility = ["//visibility:public"],
+)
+
+tailwindcss.tailwindcss_binary(
+    name = "tailwindcss",
+    # chdir = package_name(),
 )

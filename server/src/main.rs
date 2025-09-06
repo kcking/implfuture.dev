@@ -89,9 +89,6 @@ async fn main() -> Result<()> {
     if option_env!("AXUM_PRECOMPRESSED_WASM").is_some() {
         app_wasm_serve = app_wasm_serve.precompressed_br();
     }
-    for f in std::fs::read_dir("app_wasm").unwrap() {
-        dbg!(f);
-    }
     let app_wasm_serve = get_service(app_wasm_serve).handle_error(handle_error);
     let static_serve = get_service(ServeDir::new("static")).handle_error(handle_error);
     let dist_serve = get_service(ServeDir::new("bundle/dist")).handle_error(handle_error);
