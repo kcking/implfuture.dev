@@ -16,7 +16,7 @@ use implfuture::ServerAppProps;
 use once_cell::sync::Lazy;
 use serde_json::Value as JsonValue;
 use tokio_util::task::LocalPoolHandle;
-use tower::Service;
+use tower::{service_fn, Service};
 use tower_http::services::ServeDir;
 use yew_router::Routable;
 
@@ -85,11 +85,11 @@ async fn handle_error(e: impl std::fmt::Debug) -> impl IntoResponse {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mut app_wasm_serve = ServeDir::new(".");
+    let mut app_wasm_serve = ServeDir::new("app_wasm");
     if option_env!("AXUM_PRECOMPRESSED_WASM").is_some() {
         app_wasm_serve = app_wasm_serve.precompressed_br();
     }
-    for f in std::fs::read_dir("bundle/dist/assets").unwrap() {
+    for f in std::fs::read_dir("app_wasm").unwrap() {
         dbg!(f);
     }
     let app_wasm_serve = get_service(app_wasm_serve).handle_error(handle_error);
@@ -100,7 +100,7 @@ async fn main() -> Result<()> {
         route(*APP_JS_PATH, app_wasm_serve.clone())
             .route(*APP_WASM_PATH, app_wasm_serve)
             // Serve built assets from Vite dist first
-            .route("/assets", dist_serve)
+            .route("/assets/*path", dist_serve)
             // Fallback to legacy static dir
             .fallback(static_serve),
     );
