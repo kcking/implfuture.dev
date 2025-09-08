@@ -110,8 +110,8 @@ oci_image_index(
 
 # uses https://github.com/awslabs/amazon-ecr-credential-helper
 oci_push(
-    name = "push-amd64",
-    image = ":image-amd64",
+    name = "push",
+    image = ":image_multiarch",
     remote_tags = ["latest"],
     repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
 )
