@@ -49,6 +49,14 @@ register_toolchains(
 )
 
 crate_index = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
+
+# Fix windows build??
+crate_index.annotation(
+    crate = "ring",
+    compile_data_glob = ["third_party/fiat/**"],
+    data_glob = ["third_party/fiat/**"],
+)
+
 crate_index.from_cargo(
     name = "crate_index",
     cargo_lockfile = "//:Cargo.lock",
@@ -60,6 +68,7 @@ crate_index.from_cargo(
     ],
     # lockfile = "//:cargo-bazel-lock.json",
 )
+
 use_repo(
     crate_index,
     "crate_index",
