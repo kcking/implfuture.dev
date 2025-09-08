@@ -1,10 +1,7 @@
-load("@aspect_bazel_lib//lib:jq.bzl", "jq")
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@rules_oci//oci:defs.bzl", "oci_image", "oci_image_index", "oci_push")
-load("@rules_oci//oci:pull.bzl", "oci_pull")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@rules_rust//rust:defs.bzl", "rust_binary")
-load("transition.bzl", "multi_arch")
 
 rust_binary(
     name = "server",
@@ -100,25 +97,10 @@ oci_image_index(
     ],
 )
 
-# oci_image_index(
-#     name = "index",
-#     images = [
-#         ":image-arm64",
-#         ":image-amd64",
-#     ],
-# )
-
 # uses https://github.com/awslabs/amazon-ecr-credential-helper
 oci_push(
     name = "push",
     image = ":image_multiarch",
     remote_tags = ["latest"],
     repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
-)
-
-jq(
-    name = "amd64-digest",
-    srcs = ["index/index.json"],
-    out = "image-amd64-digest.txt",
-    filter = ".manifests[] | select( .platform.architecture == \"amd64\") .digest",
 )
