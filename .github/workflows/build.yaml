@@ -27,4 +27,4 @@ jobs:
       - name: build arm64 image
         # docker golang library not implemented on windows
         if: matrix.os != 'windows-latest'
-        run: bazel build //server:image-arm64
+        run: bazel build //server:image_multiarch
