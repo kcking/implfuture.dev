@@ -177,11 +177,8 @@ where
 
     //  send known paths to Yew to be SSR'd, otherwise fall-back to `f`
     fn call(&mut self, req: Request<Body>) -> Self::Future {
-        //  TODO: think about how this treats not_found_path
-        dbg!(req.uri().path());
         match <R as Routable>::recognize(req.uri().path()).is_some() {
             true => {
-                eprintln!("true");
                 self.s_ready = false;
                 let fut = self.s.call(req);
                 Box::pin(async move {
@@ -190,7 +187,6 @@ where
                 })
             }
             false => {
-                eprintln!("false");
                 self.f_ready = false;
                 let fut = self.f.call(req);
                 Box::pin(async move {
