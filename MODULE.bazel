@@ -33,10 +33,26 @@ rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = RUST_EDITION,
     versions = [RUST_VERSION],
+    extra_target_triples = [
+        "aarch64-unknown-linux-gnu",
+        "x86_64-unknown-linux-gnu",
+        "wasm32-unknown-unknown",
+    ],
 )
-use_repo(rust, "rust_toolchains")
 
-register_toolchains("@rust_toolchains//:all")
+# Register hermetic C/C++ toolchains (Zig) for cross-linking Linux targets.
+# With bzlmod, toolchains from dependencies are not auto-registered in the root
+# module unless we explicitly do so.
+hermetic_cc = use_extension(
+    "@hermetic_cc_toolchain//toolchain:ext.bzl",
+    "toolchains",
+)
+use_repo(hermetic_cc, "zig_sdk")
+register_toolchains(
+    # Linux glibc toolchains commonly needed for server images
+    "@zig_sdk//toolchain:linux_amd64_gnu.2.28",
+    "@zig_sdk//toolchain:linux_arm64_gnu.2.28",
+)
 
 crate_index = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
 crate_index.from_cargo(
