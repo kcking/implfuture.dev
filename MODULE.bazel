@@ -50,13 +50,6 @@ register_toolchains(
 
 crate_index = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
 
-# Fix windows build??
-crate_index.annotation(
-    crate = "ring",
-    compile_data_glob = ["third_party/fiat/**"],
-    data_glob = ["third_party/fiat/**"],
-)
-
 crate_index.from_cargo(
     name = "crate_index",
     cargo_lockfile = "//:Cargo.lock",
@@ -74,7 +67,8 @@ use_repo(
     "crate_index",
 )
 
-bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.56.0")
+# upgrade this?
+bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.64.0")
 bazel_dep(name = "rules_pkg", version = "1.0.1")
 
 #### JAVASCRIPT ####
