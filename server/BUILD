@@ -78,8 +78,8 @@ pkg_tar(
 )
 
 oci_image(
-    name = "image",
-    base = "@distroless_base",
+    name = "image-amd64",
+    base = "@distroless_base_linux_amd64",
     cmd = ["/app/opt"],
     env = {
         "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
@@ -88,6 +88,8 @@ oci_image(
     workdir = "/app",
 )
 
+# This doesn't work with lambda (which doesn't support multi-arch images :( ),
+# so we hard-code amd64 above.
 oci_image_index(
     name = "image_multiarch",
     images = [":image"],
@@ -100,7 +102,7 @@ oci_image_index(
 # uses https://github.com/awslabs/amazon-ecr-credential-helper
 oci_push(
     name = "push",
-    image = ":image_multiarch",
+    image = ":image-amd64",
     remote_tags = ["latest"],
     repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
 )
