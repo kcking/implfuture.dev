@@ -57,7 +57,6 @@ crate_index.from_cargo(
     # host_tools_repo = "rust_host_tools_nightly",
     manifests = [
         "//:Cargo.toml",
-        "//server:Cargo.toml",
     ],
     # lockfile = "//:cargo-bazel-lock.json",
 )
@@ -67,8 +66,33 @@ use_repo(
     "crate_index",
 )
 
-# upgrade this?
+rust_host_tools = use_extension("@rules_rust//rust:extensions.bzl", "rust_host_tools")
+rust_host_tools.host_tools(
+    name = "rust_host_tools_nightly",
+    version = "nightly",
+)
+use_repo(
+    rust_host_tools,
+    "rust_host_tools_nightly",
+)
+
 bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.64.0")
+
+# use manual wasm-bindgen toolchain to fix windows build failure
+bindeps = use_extension("@rules_rust//crate_universe:extension.bzl", "crate")
+bindeps.spec(
+    package = "wasm-bindgen-cli",
+    version = "=0.2.100",
+    artifact = "bin",
+)
+bindeps.annotation(crate = "wasm-bindgen-cli", gen_all_binaries = True)
+bindeps.from_specs(
+    name = "bindeps",
+    host_tools = "@rust_host_tools_nightly",
+)
+use_repo(bindeps, "bindeps")
+register_toolchains("//toolchains:wasm_bindgen_toolchain")
+
 bazel_dep(name = "rules_pkg", version = "1.0.1")
 
 #### JAVASCRIPT ####
