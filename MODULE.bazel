@@ -3,7 +3,7 @@ bazel_dep(name = "rules_oci", version = "2.2.6")
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
 oci.pull(
     name = "distroless_base",
-    image = "gcr.io/distroless/base",
+    image = "gcr.io/distroless/cc",
     platforms = [
         "linux/amd64",
         "linux/arm64/v8",

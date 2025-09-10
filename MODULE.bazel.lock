@@ -1003,7 +1003,7 @@
     "@@rules_oci~//oci:extensions.bzl%oci": {
       "general": {
         "bzlTransitiveDigest": "Zhh0qnEkapd1ujXIJSTNAkhtoUqunA774G95pmA+Hog=",
-        "usagesDigest": "SH8y/IOeNngB/OtxYAKI5qqqdyc4BEGbtBWrjREJv0k=",
+        "usagesDigest": "4XmWp2HmXwiE7/1xBHFN7Tz+tFCQiEqtGjkOBTADths=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -1015,7 +1015,7 @@
               "www_authenticate_challenges": {},
               "scheme": "https",
               "registry": "gcr.io",
-              "repository": "distroless/base",
+              "repository": "distroless/cc",
               "identifier": "latest",
               "platform": "linux/amd64",
               "target_name": "distroless_base_linux_amd64",
@@ -1029,7 +1029,7 @@
               "www_authenticate_challenges": {},
               "scheme": "https",
               "registry": "gcr.io",
-              "repository": "distroless/base",
+              "repository": "distroless/cc",
               "identifier": "latest",
               "platform": "linux/arm64/v8",
               "target_name": "distroless_base_linux_arm64_v8",
@@ -1044,7 +1044,7 @@
               "www_authenticate_challenges": {},
               "scheme": "https",
               "registry": "gcr.io",
-              "repository": "distroless/base",
+              "repository": "distroless/cc",
               "identifier": "latest",
               "platforms": {
                 "@@platforms//cpu:x86_64": "@distroless_base_linux_amd64",
@@ -1267,7 +1267,7 @@
         "usagesDigest": "sBT+Al7MzCm/bas3GF3ys/Cc6khpdKdLiNftMJDf/bA=",
         "recordedFileInputs": {
           "@@rules_rust~~rust_host_tools~rust_host_tools_nightly//rust_host_tools_nightly": "ENOENT",
-          "@@//MODULE.bazel": "46d2377cc8bbaf4b6c5f8b8306198107ee7268afaa1c3e0e9573c3c30e035a20"
+          "@@//MODULE.bazel": "0a04a3edd88ae8432332c490c811ba8229bf3793f1270b87741d6d147f390eec"
         },
         "recordedDirentsInputs": {},
         "envVariables": {
@@ -5348,7 +5348,7 @@
         "recordedFileInputs": {
           "@@//Cargo.toml": "5cb0f1dd0479a4715111c2a9d850db4ab8139170dab36fc0fb3234b3c1b41758",
           "@@//Cargo.lock": "4a099b07d0b221337197c14b3e826304f3d2a052382d0ffe6944792cf1e13e61",
-          "@@//MODULE.bazel": "46d2377cc8bbaf4b6c5f8b8306198107ee7268afaa1c3e0e9573c3c30e035a20",
+          "@@//MODULE.bazel": "0a04a3edd88ae8432332c490c811ba8229bf3793f1270b87741d6d147f390eec",
           "@@//server/Cargo.toml": "ba8856ba537f0e67e10b32a4dcde628463bc24905886e0524c22b23fd3d578aa",
           "@@rules_rust~~rust_host_tools~rust_host_tools//rust_host_tools": "ENOENT"
         },
