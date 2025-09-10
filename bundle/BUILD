@@ -83,5 +83,4 @@ js_run_binary(
 
 tailwindcss.tailwindcss_binary(
     name = "tailwindcss",
-    # chdir = package_name(),
 )

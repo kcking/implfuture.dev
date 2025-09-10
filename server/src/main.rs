@@ -14,9 +14,8 @@ use futures::future::BoxFuture;
 use futures::ready;
 use implfuture::ServerAppProps;
 use once_cell::sync::Lazy;
-use serde_json::Value as JsonValue;
 use tokio_util::task::LocalPoolHandle;
-use tower::{service_fn, Service};
+use tower::Service;
 use tower_http::services::ServeDir;
 use yew_router::Routable;
 
