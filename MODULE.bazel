@@ -59,11 +59,9 @@ crate_index.from_cargo(
     name = "crate_index",
     cargo_lockfile = "//:Cargo.lock",
     generate_binaries = True,
-    # host_tools_repo = "rust_host_tools_nightly",
     manifests = [
         "//:Cargo.toml",
     ],
-    # lockfile = "//:cargo-bazel-lock.json",
 )
 
 use_repo(
@@ -103,6 +101,7 @@ bazel_dep(name = "rules_pkg", version = "1.0.1")
 #### JAVASCRIPT ####
 
 # for jq as well
+# Much of this was inspired by the bazel react-frontend example.
 bazel_dep(name = "aspect_bazel_lib", version = "2.21.0")
 bazel_dep(name = "aspect_rules_lint", version = "1.2.2")
 bazel_dep(name = "aspect_rules_jest", version = "0.22.0")
@@ -125,11 +124,6 @@ npm.npm_translate_lock(
     name = "app_npm",
     npmrc = "//bundle:.npmrc",
     pnpm_lock = "//bundle:pnpm-lock.yaml",
-    # public_hoist_packages = {
-    #     "@next/eslint-plugin-next": ["next.js"],
-    #     "eslint-config-react-app": ["react"],
-    #     "eslint@8.28.0": ["react"],
-    # },
     verify_node_modules_ignored = "//:.bazelignore",
 )
 use_repo(npm, "app_npm")
@@ -165,6 +159,3 @@ register_toolchains(
     "//emsdk:emsdk_linux_toolchain",
     "//emsdk:emsdk_win_toolchain",
 )
-
-### for platforms for multiarch image
-bazel_dep(name = "rules_go", version = "0.57.0")

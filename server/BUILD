@@ -92,8 +92,8 @@ oci_image_index(
     name = "image_multiarch",
     images = [":image"],
     platforms = [
-        "@rules_go//go/toolchain:linux_amd64",
-        "@rules_go//go/toolchain:linux_arm64",
+        ":linux_amd64",
+        ":linux_arm64",
     ],
 )
 

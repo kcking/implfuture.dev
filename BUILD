@@ -51,7 +51,6 @@ rust_binary(
         normal = True,
     ) + [
         ":implfuture",
-        # "@rules_rust_wasm_bindgen//3rdparty:wasm_bindgen",
     ],
 )
 
