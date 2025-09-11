@@ -88,10 +88,32 @@ oci_image(
     workdir = "/app",
 )
 
+oci_image(
+    name = "image-arm64",
+    base = "@distroless_base_linux_arm64_v8",
+    cmd = ["/app/opt"],
+    env = {
+        "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
+    },
+    tars = [":opt_tar"],
+    workdir = "/app",
+)
+
+oci_image(
+    name = "image",
+    base = "@distroless_base",
+    cmd = ["/app/opt"],
+    env = {
+        "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
+    },
+    tars = [":opt_tar"],
+    workdir = "/app",
+)
+
 # This doesn't work with lambda (which doesn't support multi-arch images :( ),
 # so we hard-code amd64 above.
 oci_image_index(
-    name = "image_multiarch",
+    name = "image-multiarch",
     images = [":image"],
     platforms = [
         ":linux_amd64",
@@ -103,6 +125,13 @@ oci_image_index(
 oci_push(
     name = "push",
     image = ":image-amd64",
+    remote_tags = ["latest"],
+    repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
+)
+
+oci_push(
+    name = "push-multiarch",
+    image = ":image-multiarch",
     remote_tags = ["latest"],
     repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
 )
