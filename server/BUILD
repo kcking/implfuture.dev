@@ -96,7 +96,7 @@ oci_image(
         "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
     },
     tars = [":opt_tar"],
-    workdir = "/app",
+    workdir = "/app/opt.runfiles/_main",
 )
 
 oci_image(
@@ -107,7 +107,7 @@ oci_image(
         "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
     },
     tars = [":opt_tar"],
-    workdir = "/app",
+    workdir = "/app/opt.runfiles/_main",
 )
 
 # This doesn't work with lambda (which doesn't support multi-arch images :( ),
@@ -125,6 +125,13 @@ oci_image_index(
 oci_push(
     name = "push",
     image = ":image-amd64",
+    remote_tags = ["latest"],
+    repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
+)
+
+oci_push(
+    name = "push-arm64",
+    image = ":image-arm64",
     remote_tags = ["latest"],
     repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
 )
