@@ -84,14 +84,6 @@ async fn handle_error(e: impl std::fmt::Debug) -> impl IntoResponse {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    for e in std::fs::read_dir("..").unwrap() {
-        dbg!(&e);
-        if let Ok(e) = e {
-            for e2 in std::fs::read_dir(e.path()).unwrap() {
-                dbg!(&e, &e2);
-            }
-        }
-    }
     let mut app_wasm_serve = ServeDir::new("app_wasm");
     if option_env!("AXUM_PRECOMPRESSED_WASM").is_some() {
         app_wasm_serve = app_wasm_serve.precompressed_br();

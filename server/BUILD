@@ -2,6 +2,7 @@ load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@rules_oci//oci:defs.bzl", "oci_image", "oci_image_index", "oci_push")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("//tools:platform_transitions.bzl", "platform_passthrough")
 
 rust_binary(
     name = "server",
@@ -84,8 +85,17 @@ oci_image(
     env = {
         "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
     },
-    tars = [":opt_tar"],
-    workdir = "/app",
+
+    # Ensure the tar (and thus the embedded opt binary) is built for linux/amd64
+    tars = [":opt_tar_amd64"],
+    workdir = "/app/opt.runfiles/_main",
+)
+
+# Rebuild the tar under the linux/amd64 platform for image-amd64
+platform_passthrough(
+    name = "opt_tar_amd64",
+    src = ":opt_tar",
+    platform = ":linux_amd64",
 )
 
 oci_image(
