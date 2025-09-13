@@ -9,6 +9,23 @@ times have changed, and I wanted to see just how far I could push rust to feel
 like Next.js. So I did what any developer would do and rewrote my personal
 site... again.
 
+## 2025 Update
+Since the writing of this post, bazel has migrated to "modules" as a replacement
+to the WORKSPACE file/construct. This brings the [Bazel Central Registry](https://registry.bazel.build), which
+is like crates.io for remote bazel dependencies. A few other niceties were roped into this migration as well
+
+- `rules_nodejs` -> `aspect_rules_js`
+    - Use `vite` instead of `esbuild` for the js bundling
+    - Use `pnpm` for js dependency/lockfile management
+    - No more separate js workspace required (previously I had one for tools and
+    one for the actual bundle).
+- `rules_docker` -> `rules_oci`
+
+I don't have the time to re-write the entire flow of this post, so I will leave
+the original chain of thought here. You can see the actual migration PR
+[here](https://github.com/kcking/implfuture.dev/pull/5) for reference.
+
+
 ## The Destination
 
 This post is a summary of my journey to a full-stack rust web application. I'll
