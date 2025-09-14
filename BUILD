@@ -1,7 +1,8 @@
-load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+load("@aspect_rules_js//js:defs.bzl", "js_library", "js_run_binary", "js_run_devserver", "js_test")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
-load("@rules_rust//wasm_bindgen:defs.bzl", "rust_wasm_bindgen")
+load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library")
+load("@rules_rust_wasm_bindgen//:defs.bzl", "rust_wasm_bindgen")
 load("//emsdk:emsdk.bzl", "wasmopt")
 
 package(
@@ -41,7 +42,6 @@ rust_binary(
         ],
         ":fastbuild": [],
         "//conditions:default": [
-            "-Clto",
             "-Ccodegen-units=1",
             "-Cpanic=abort",
             "-Copt-level=z",
@@ -51,7 +51,6 @@ rust_binary(
         normal = True,
     ) + [
         ":implfuture",
-        "@rules_rust//wasm_bindgen/3rdparty:wasm_bindgen",
     ],
 )
 
@@ -97,37 +96,30 @@ filegroup(
     name = "static_files",
     srcs = glob(["static/**"]) + [
         ":tailwind",
-        ":copybundletostatic",
+        "//bundle",
     ],
-)
-
-genrule(
-    name = "tailwind",
-    srcs = glob(["src/**/*.rs"]) + ["tailwind.config.js"],
-    outs = ["static/tailwind.css"],
-    cmd = "$(execpath @root_npm//tailwindcss/bin:tailwindcss) --output=$(OUTS)",
-    tools = ["@root_npm//tailwindcss/bin:tailwindcss"],
-    visibility = ["//:__pkg__"],
-)
-
-genrule(
-    name = "copybundletostatic",
-    srcs = ["//bundle"],
-    outs = ["static/bundle.js"],
-    cmd = "cp $(@D)/../bundle/bundle.js $(OUTS)",
-    cmd_bat = "copy \"$(@D)\\..\\bundle\\bundle.js\" $(OUTS)",
 )
 
 wasmopt(
     name = "app_wasm_opt",
     src = ":app_wasm",
-    out = "app_wasm_bg_opt.wasm",
+    out = "app_wasm/app_wasm_bg_opt.wasm",
 )
 
 genrule(
     name = "app_wasm_opt_br",
     srcs = [":app_wasm_opt"],
-    outs = ["app_wasm_bg_opt.wasm.br"],
+    outs = ["app_wasm/app_wasm_bg_opt.wasm.br"],
     cmd = "$(execpath @brotli) -9 $<",
     tools = ["@brotli"],
+)
+
+js_run_binary(
+    name = "tailwind",
+    srcs = glob(["src/**/*.rs"]) + [
+        "tailwind.config.js",
+    ],
+    args = ["--output=static/css/tailwind.css"],
+    out_dirs = ["static/css"],
+    tool = "//bundle:tailwindcss",
 )

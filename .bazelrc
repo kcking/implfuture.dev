@@ -1,2 +1,7 @@
-build --symlink_prefix=target/
 build --incompatible_enable_cc_toolchain_resolution=1
+common --enable_bzlmod
+
+# passes an argument `--skipLibCheck` to *every* spawn of the TypeScript compiler, tsc
+common --@aspect_rules_ts//ts:skipLibCheck=always
+
+common:windows --enable_runfiles

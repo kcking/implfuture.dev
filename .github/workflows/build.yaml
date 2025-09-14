@@ -25,6 +25,7 @@ jobs:
       - name: build opt
         run: bazel build //server:opt
       - name: build arm64 image
-        # docker golang library not implemented on windows
+        # rules_oci currently not working on windows
+        # https://github.com/bazel-contrib/rules_oci/pull/827
         if: matrix.os != 'windows-latest'
-        run: bazel build //server:image-arm64
+        run: bazel build //server:image-multiarch

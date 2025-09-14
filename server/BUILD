@@ -1,11 +1,8 @@
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_binary")
-load(
-    "@io_bazel_rules_docker//container:container.bzl",
-    "container_image",
-    "container_push",
-)
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_image_index", "oci_push")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("//tools:platform_transitions.bzl", "platform_passthrough")
 
 rust_binary(
     name = "server",
@@ -81,40 +78,77 @@ pkg_tar(
     strip_prefix = "/server",
 )
 
-container_image(
-    name = "image-arm64",
-    architecture = "arm64",
-    # References container_pull from WORKSPACE (above)
-    base = "@cc_base//image",
+oci_image(
+    name = "image-amd64",
+    base = "@distroless_base_linux_amd64",
     cmd = ["/app/opt"],
-    enable_mtime_preservation = True,
     env = {
         "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
     },
-    tars = [":opt_tar"],
-    workdir = "/app",
+
+    # Ensure the tar (and thus the embedded opt binary) is built for linux/amd64
+    tars = [":opt_tar_amd64"],
+    workdir = "/app/opt.runfiles/_main",
 )
 
-container_image(
-    name = "image-amd64",
-    architecture = "amd64",
-    # References container_pull from WORKSPACE (above)
-    base = "@cc_base//image",
+# Rebuild the tar under the linux/amd64 platform for image-amd64
+platform_passthrough(
+    name = "opt_tar_amd64",
+    src = ":opt_tar",
+    platform = ":linux_amd64",
+)
+
+oci_image(
+    name = "image-arm64",
+    base = "@distroless_base_linux_arm64_v8",
     cmd = ["/app/opt"],
-    enable_mtime_preservation = True,
     env = {
         "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
     },
     tars = [":opt_tar"],
-    workdir = "/app",
+    workdir = "/app/opt.runfiles/_main",
+)
+
+oci_image(
+    name = "image",
+    base = "@distroless_base",
+    cmd = ["/app/opt"],
+    env = {
+        "HTTP_LISTEN_ADDR": "0.0.0.0:8080",
+    },
+    tars = [":opt_tar"],
+    workdir = "/app/opt.runfiles/_main",
+)
+
+# This doesn't work with lambda (which doesn't support multi-arch images :( ),
+# so we hard-code amd64 above.
+oci_image_index(
+    name = "image-multiarch",
+    images = [":image"],
+    platforms = [
+        ":linux_amd64",
+        ":linux_arm64",
+    ],
 )
 
 # uses https://github.com/awslabs/amazon-ecr-credential-helper
-container_push(
-    name = "push-amd64",
-    format = "Docker",
+oci_push(
+    name = "push",
     image = ":image-amd64",
-    registry = "689191389309.dkr.ecr.us-west-1.amazonaws.com",
-    repository = "implfuture",
-    tag = "latest",
+    remote_tags = ["latest"],
+    repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
+)
+
+oci_push(
+    name = "push-arm64",
+    image = ":image-arm64",
+    remote_tags = ["latest"],
+    repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
+)
+
+oci_push(
+    name = "push-multiarch",
+    image = ":image-multiarch",
+    remote_tags = ["latest"],
+    repository = "689191389309.dkr.ecr.us-west-1.amazonaws.com/implfuture",
 )
