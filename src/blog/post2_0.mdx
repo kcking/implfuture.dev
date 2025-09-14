@@ -11,14 +11,15 @@ site... again.
 
 ## 2025 Update
 Since the writing of this post, bazel has migrated to "modules" as a replacement
-to the WORKSPACE file/construct. This brings the [Bazel Central Registry](https://registry.bazel.build), which
-is like crates.io for remote bazel dependencies. A few other niceties were roped into this migration as well
+to the WORKSPACE file. This brings the [Bazel Central Registry](https://registry.bazel.build), which
+is like crates.io for remote bazel dependencies. A few other niceties were roped
+into this migration as well
 
 - `rules_nodejs` -> `aspect_rules_js`
-    - Use `vite` instead of `esbuild` for the js bundling
-    - Use `pnpm` for js dependency/lockfile management
-    - No more separate js workspace required (previously I had one for tools and
-    one for the actual bundle).
+- Use `vite` instead of `esbuild` for the js bundling
+- Use `pnpm` for js dependency and lockfile management
+- No more separate js workspace required (previously I had one for tools and
+one for the actual bundle).
 - `rules_docker` -> `rules_oci`
 
 I don't have the time to re-write the entire flow of this post, so I will leave
