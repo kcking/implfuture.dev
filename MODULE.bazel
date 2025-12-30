@@ -1,6 +1,7 @@
-bazel_dep(name = "rules_oci", version = "2.2.6")
+bazel_dep(name = "rules_oci", version = "2.2.7")
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+
 oci.pull(
     name = "distroless_base",
     image = "gcr.io/distroless/cc",
@@ -13,30 +14,34 @@ oci.pull(
     # values which you can use here in place of 'tag' to pin for reproducibility.
     tag = "latest",
 )
+
 use_repo(oci, "distroless_base", "distroless_base_linux_amd64", "distroless_base_linux_arm64_v8")
 
 bazel_dep(name = "hermetic_cc_toolchain", version = "4.0.0")
+
 git_override(
+    commit = "e906f270fa38c1fe0b2db346717d2f2cd90da123",
     module_name = "hermetic_cc_toolchain",
     remote = "https://github.com/uber/hermetic_cc_toolchain.git",
-    commit = "e906f270fa38c1fe0b2db346717d2f2cd90da123",
 )
-bazel_dep(name = "rules_rust", version = "0.64.0")
+
+bazel_dep(name = "rules_rust", version = "0.68.1")
 bazel_dep(name = "platforms", version = "1.0.0")
 
 RUST_EDITION = "2024"
 
-RUST_VERSION = "1.89.0"
+RUST_VERSION = "1.92.0"
 
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+
 rust.toolchain(
     edition = RUST_EDITION,
-    versions = [RUST_VERSION],
     extra_target_triples = [
         "aarch64-unknown-linux-gnu",
         "x86_64-unknown-linux-gnu",
         "wasm32-unknown-unknown",
     ],
+    versions = [RUST_VERSION],
 )
 
 # Register hermetic C/C++ toolchains (Zig) for cross-linking Linux targets.
@@ -46,7 +51,9 @@ hermetic_cc = use_extension(
     "@hermetic_cc_toolchain//toolchain:ext.bzl",
     "toolchains",
 )
+
 use_repo(hermetic_cc, "zig_sdk")
+
 register_toolchains(
     # Linux glibc toolchains commonly needed for server images
     "@zig_sdk//toolchain:linux_amd64_gnu.2.28",
@@ -59,6 +66,7 @@ crate_index.from_cargo(
     name = "crate_index",
     cargo_lockfile = "//:Cargo.lock",
     generate_binaries = True,
+    isolated = True,
     manifests = [
         "//:Cargo.toml",
     ],
@@ -70,10 +78,12 @@ use_repo(
 )
 
 rust_host_tools = use_extension("@rules_rust//rust:extensions.bzl", "rust_host_tools")
+
 rust_host_tools.host_tools(
     name = "rust_host_tools_nightly",
     version = "nightly",
 )
+
 use_repo(
     rust_host_tools,
     "rust_host_tools_nightly",
@@ -83,17 +93,25 @@ bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.64.0")
 
 # use manual wasm-bindgen toolchain to fix windows build failure
 bindeps = use_extension("@rules_rust//crate_universe:extension.bzl", "crate")
+
 bindeps.spec(
+    artifact = "bin",
     package = "wasm-bindgen-cli",
     version = "=0.2.100",
-    artifact = "bin",
 )
-bindeps.annotation(crate = "wasm-bindgen-cli", gen_all_binaries = True)
+
+bindeps.annotation(
+    crate = "wasm-bindgen-cli",
+    gen_all_binaries = True,
+)
+
 bindeps.from_specs(
     name = "bindeps",
     host_tools = "@rust_host_tools_nightly",
 )
+
 use_repo(bindeps, "bindeps")
+
 register_toolchains("//toolchains:wasm_bindgen_toolchain")
 
 bazel_dep(name = "rules_pkg", version = "1.0.1")
@@ -110,22 +128,38 @@ bazel_dep(name = "aspect_rules_swc", version = "2.4.4")
 bazel_dep(name = "aspect_rules_ts", version = "3.1.0")
 bazel_dep(name = "aspect_rules_rollup", version = "2.0.1")
 bazel_dep(name = "aspect_rules_webpack", version = "0.16.0")
-bazel_dep(name = "bazel_skylib", version = "1.8.1")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "rules_nodejs", version = "6.5.0")
 
-node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
+node = use_extension(
+    "@rules_nodejs//nodejs:extensions.bzl",
+    "node",
+    dev_dependency = True,
+)
+
 node.toolchain(node_version = "20.13.1")
 
-pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm", dev_dependency = True)
+pnpm = use_extension(
+    "@aspect_rules_js//npm:extensions.bzl",
+    "pnpm",
+    dev_dependency = True,
+)
+
 use_repo(pnpm, "pnpm")
 
-npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm", dev_dependency = True)
+npm = use_extension(
+    "@aspect_rules_js//npm:extensions.bzl",
+    "npm",
+    dev_dependency = True,
+)
+
 npm.npm_translate_lock(
     name = "app_npm",
     npmrc = "//bundle:.npmrc",
     pnpm_lock = "//bundle:pnpm-lock.yaml",
     verify_node_modules_ignored = "//:.bazelignore",
 )
+
 use_repo(npm, "app_npm")
 
 rules_ts_ext = use_extension(
@@ -133,7 +167,9 @@ rules_ts_ext = use_extension(
     "ext",
     dev_dependency = True,
 )
+
 rules_ts_ext.deps()
+
 use_repo(rules_ts_ext, "npm_typescript")
 
 #### wasm compression
@@ -146,10 +182,15 @@ emscripten_deps = use_extension(
     "@emsdk//:emscripten_deps.bzl",
     "emscripten_deps",
 )
+
 use_repo(emscripten_deps, "emscripten_bin_linux")
+
 use_repo(emscripten_deps, "emscripten_bin_linux_arm64")
+
 use_repo(emscripten_deps, "emscripten_bin_mac")
+
 use_repo(emscripten_deps, "emscripten_bin_mac_arm64")
+
 use_repo(emscripten_deps, "emscripten_bin_win")
 
 # Register local emsdk toolchains (wasm-opt) so our custom rule can find them

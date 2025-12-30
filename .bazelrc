@@ -5,3 +5,5 @@ common --enable_bzlmod
 common --@aspect_rules_ts//ts:skipLibCheck=always
 
 common:windows --enable_runfiles
+
+common --repo_env=CARGO_BAZEL_ISOLATED=true
